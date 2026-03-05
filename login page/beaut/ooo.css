@@ -71,15 +71,15 @@ button{
 
 /* Button hover */
 button:hover{
-    background:#2c8ef4;
+    background:#0461c5;
 }
 
 /* Response text */
 #response{
     margin-top:15px;
     text-align:center;
-    font-size:14px;
-    color:#333;
+    font-size:18px;
+    color:#181717;
 }
 
 /* Navigation */
