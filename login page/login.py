@@ -25,7 +25,6 @@ def add_user():
     return fl.jsonify({
         "message": "User added successfully",
           "username": username, 
-          "password": password, 
           "role": role
     }), 201
 
