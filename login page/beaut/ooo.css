@@ -1,105 +1,110 @@
-body {
-   background-color: #9e8080;
-   font-family: Arial, sans-serif;
-      display: flex;
-    gap: 10px;
-    height: 100vh;
-    margin: 0px;
+/* Reset */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, Helvetica, sans-serif;
 }
-h1 {
-   color: #ffffff;
+
+/* Page background */
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
 }
-h2 {
-   color: #ffffff;
+
+/* Form container */
+form{
+    background:#ffffff;
+    padding:40px;
+    border-radius:12px;
+    width:320px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
-h3 {
-   color: #ffffff;
+
+/* Title */
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
 }
-p {
-   color: #000000;
-   font-size: 18px;
+
+/* Labels */
+h2,h3{
+    font-size:14px;
+    margin-top:10px;
+    color:#444;
 }
-#registerForm {
-   background-color: #9e8080;
-   padding: 20px;
-   width: 200px;
-   display: flex;
-  justify-content: center;
-   flex-direction: column;
-   gap: 10px;
+
+/* Inputs */
+input{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    outline:none;
+    transition:0.3s;
 }
-#registerForm input {
-   padding: 5px;
-   border: 1px solid #000000;
-   border-radius: 7px;
+
+/* Input focus */
+input:focus{
+    border-color:#4facfe;
+    box-shadow:0 0 5px rgba(79,172,254,0.5);
 }
-#registerForm button {
-   padding: 5px;
-   border: none;
-   border-radius: 7px;
-   background-color: #000000;
-   color: #ffffff;
-   cursor: pointer;
+
+/* Button */
+button{
+    width:100%;
+    margin-top:18px;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    background:#4facfe;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
 }
-#registerForm button:hover {
-   background-color: #333333;
+
+/* Button hover */
+button:hover{
+    background:#2c8ef4;
 }
-::placeholder {
-   text-align: center;
+
+/* Response text */
+#response{
+    margin-top:15px;
+    text-align:center;
+    font-size:14px;
+    color:#333;
 }
-#loginForm {
-   background-color: #9e8080;
-   padding: 20px;
-   width: 200px;
-   display: flex;
-  justify-content: center;
-   flex-direction: column;
-   gap: 10px;
+
+/* Navigation */
+nav{
+    position:absolute;
+    top:20px;
+    right:30px;
 }
-#loginForm input {
-   padding: 5px;
-   border: 1px solid #000000;
-   border-radius: 7px;
+
+nav a{
+    text-decoration:none;
+    color:white;
+    margin-left:15px;
+    font-weight:bold;
+    transition:0.3s;
 }
-#loginForm button {
-   padding: 5px;
-   border: none;
-   border-radius: 7px;
-   background-color: #000000;
-   color: #ffffff;
-   cursor: pointer;
+
+nav a:hover{
+    text-decoration:underline;
 }
-#loginForm button:hover {
-   background-color: #333333;
-}
-::placeholder {
-   text-align: center;
-}
-#deleteForm {
-   background-color: #9e8080;
-   padding: 20px;
-   width: 200px;
-   display: flex;
-  justify-content: center;
-   flex-direction: column;
-   gap: 10px;
-}
-#deleteForm input {
-   padding: 5px;
-   border: 1px solid #000000;
-   border-radius: 7px;
-}
-#deleteForm button {
-   padding: 5px;
-   border: none;
-   border-radius: 7px;
-   background-color: #000000;
-   color: #ffffff;
-   cursor: pointer;
-}
-#deleteForm button:hover {
-   background-color: #333333;
-}
-::placeholder {
-   text-align: center;
+
+/*login form style*/
+form label{
+    display:block;
+    margin-top:15px;
+    font-size:14px;
+    color:#000000;
 }
