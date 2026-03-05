@@ -24,8 +24,8 @@ def add_user():
     col.insert_one({"username": username, "password": password, "role": role})
     return fl.jsonify({
         "message": "User added successfully",
-          "username": username, 
-          "role": role
+        "username": username, 
+        "role": role
     }), 201
 
 @app.route('/login', methods=['GET', 'POST'])
