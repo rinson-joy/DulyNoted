@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='ooo.css') }}">
+    <title>{{ name }}</title>
+</head>
+
+<body>
+    <div class="container wide">
+        <h1>{{ name }}</h1>
+        
+        <div id="userList">
+            <p>Loading users...</p>
+        </div>
+
+        <div id="response" class="response-container">
+            <span id="message"></span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/home">Home</a>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+        {% if session.role == 'master' %}
+        <a href="/admin">Admin Panel</a>
+        {% endif %}
+        {% if session.user %}
+        <a href="/logout">Logout</a>
+        {% endif %}
+        <a href="/delete">Delete</a>
+    </nav>
+
+    <script>
+        async function fetchUsers() {
+            const response = await fetch('/admin/users');
+            const users = await response.json();
+            const userListDiv = document.getElementById('userList');
+            
+            if (users.length === 0) {
+                userListDiv.innerHTML = '<p>No users found.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Username</th><th>Role</th><th>Action</th></tr></thead><tbody>';
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.role || 'user'}</td>
+                        <td>
+                            <select onchange="updateRole('${user.username}', this.value)">
+                                <option value="">Change Role</option>
+                                <option value="peasant">Peasant</option>
+                                <option value="slave">Slave</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += '</tbody></table>';
+            userListDiv.innerHTML = html;
+        }
+
+        async function updateRole(username, newRole) {
+            if (!newRole) return;
+            
+            const responseDiv = document.getElementById('response');
+            const messageSpan = document.getElementById('message');
+
+            try {
+                const response = await fetch('/admin/assign_role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, role: newRole })
+                });
+                const result = await response.json();
+                
+                messageSpan.textContent = result.message;
+                responseDiv.className = 'response-container ' + (response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    fetchUsers(); // Refresh the list
+                }
+            } catch (error) {
+                messageSpan.textContent = 'An error occurred.';
+                responseDiv.className = 'response-container error';
+            }
+        }
+
+        fetchUsers();
+    </script>
+</body>
+</html>

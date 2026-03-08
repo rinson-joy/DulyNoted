@@ -1,57 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-   <link rel="stylesheet" href="{{ url_for('static', filename='ooo.css') }}">
-   <title>{{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='ooo.css') }}">
+    <title>{{ name }}</title>
 </head>
 
 <body>
-   <div class="title">
-      <h1>{{ name }}</h1>
-      <form id="deleteForm">
-         <label>Username</label>
-         <input type="text" id="userInput" placeholder="username" required>
+    <div class="container">
+        <h1>{{ name }}</h1>
 
-         <label>Password</label>
-         <input type="password" id="pwInput" placeholder="password" required>
+        <form id="deleteForm">
+            <label>Username</label>
+            <input type="text" id="userInput" placeholder="username" required>
 
-         <label>Role</label>
-         <input type="text" id="roleInput" placeholder="role" required>
-         <button type="submit">delete</button>
-      </form>
-   
+            <label>Password</label>
+            <input type="password" id="pwInput" placeholder="password" required>
 
-   <p id="response">
-      <span id="message"></span>
-      <span id="credentials"></span>
-      <span id="role"></span>
-   </p>
-</div>
-   <nav>
-      <a href="/home">Home</a>
-      <a href="/register">Register</a>
-      <a href="/login">Login</a>
-      <a href="/delete">Delete</a>
-   </nav>
-   <script>
-      document.getElementById('deleteForm').addEventListener('submit', async (e) => {
-         e.preventDefault();
-         const userInput = document.getElementById('userInput').value;
-         const pwInput = document.getElementById('pwInput').value;
-         const roleInput = document.getElementById('roleInput').value;
+            <label>Role</label>
+            <input type="text" id="roleInput" placeholder="role" required>
+            
+            <button type="submit">delete</button>
+        </form>
 
-         const response = await fetch('/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: userInput, password: pwInput, role: roleInput })
-         });
-         const result = await response.json();
-         document.getElementById('message').textContent = result.message || '';
-         document.getElementById('credentials').textContent = result.username ? ` ${result.username}` : '';
-         document.getElementById('role').textContent = result.role ? ` ${result.role}` : '';
-      });
-   </script>
+        <div id="response" class="response-container">
+            <span id="message"></span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/home">Home</a>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+        {% if session.role == 'master' %}
+        <a href="/admin">Admin Panel</a>
+        {% endif %}
+        {% if session.user %}
+        <a href="/logout">Logout</a>
+        {% endif %}
+        <a href="/delete">Delete</a>
+    </nav>
+
+    <script>
+        document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userInput = document.getElementById('userInput').value;
+            const pwInput = document.getElementById('pwInput').value;
+            const roleInput = document.getElementById('roleInput').value;
+            const responseDiv = document.getElementById('response');
+            const messageSpan = document.getElementById('message');
+
+            try {
+                const response = await fetch('/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: userInput, password: pwInput, role: roleInput })
+                });
+                const result = await response.json();
+                
+                messageSpan.textContent = result.message;
+                responseDiv.className = 'response-container ' + (response.ok ? 'success' : 'error');
+            } catch (error) {
+                messageSpan.textContent = 'An error occurred. Please try again.';
+                responseDiv.className = 'response-container error';
+            }
+        });
+    </script>
 </body>
-
 </html>
