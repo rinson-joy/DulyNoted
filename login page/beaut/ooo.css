@@ -1,277 +1,74 @@
-/* Reset */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: Arial, Helvetica, sans-serif;
+/* Monkeytype Palette */
+:root {
+    --bg-color: #323437;
+    --main-color: #e2b714;
+    --sub-color: #646669;
+    --text-color: #d1d0c5;
+    --error-color: #ca4754;
 }
 
-/* Page background */
-body{
-    height:100vh;
-    display:flex;
-    flex-direction: column;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#4facfe,#12191a);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Container */
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    width: 350px;
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Roboto Mono', monospace;
+    line-height: 1.6;
 }
 
-.container.wide {
-    width: 600px;
-}
-
-/* Form container */
-form{
-    width: 100%;
-}
-
-/* Title */
-h1{
-    text-align:center;
-    margin-bottom:20px;
-    color:#333;
-}
-
-/* Labels */
-h2,h3{
-    font-size:14px;
-    margin-top:10px;
-    color:#444;
-}
-
-/* Inputs */
-input, textarea {
-    width:100%;
-    padding:10px;
-    margin-top:6px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    outline:none;
-    transition:0.3s;
-}
-
-textarea {
-    resize: none;
-    font-size: 14px;
-}
-
-/* Input focus */
-input:focus, textarea:focus {
-    border-color:#4facfe;
-    box-shadow:0 0 5px rgba(79,172,254,0.5);
-}
-
-/* Button */
-button{
-    width:100%;
-    margin-top:18px;
-    padding:10px;
-    border:none;
-    border-radius:6px;
-    background:#4facfe;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-/* Button hover */
-button:hover{
-    background:#0461c5;
-}
-
-/* Response text */
-.response-container {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-    min-height: 24px;
-}
-
-.success {
-    color: #28a745;
-}
-
-.error {
-    color: #dc3545;
-}
-
-/* Navigation */
-nav{
-    position:absolute;
-    top:20px;
-    right:30px;
-}
-
-nav a{
-    text-decoration:none;
-    color:white;
-    margin-left:15px;
-    font-weight:bold;
-    transition:0.3s;
-}
-
-nav a:hover{
-    text-decoration:underline;
-}
-
-/* Form label style */
-form label{
-    display:block;
-    margin-top:15px;
-    font-size:14px;
-    color:#000000;
-}
-
-/* Welcome message */
-.welcome-msg {
-    color: #333;
-    margin-bottom: 20px;
-    font-size: 1.2rem;
-}
-
-/* Content Links */
-.content-links {
-    margin-top: 20px;
-    width: 100%;
-}
-
-.content-links p {
-    margin: 10px 0;
-}
-
-.content-links a {
-    display: block;
-    text-align: center;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #333;
-    transition: 0.3s;
-}
-
-.content-links a:hover {
-    background: #e2e6ea;
-}
-
-/* Admin Panel Table */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    color: #333;
-}
-
-th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-}
-
-select {
-    padding: 5px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    outline: none;
-}
-
-#userList {
-    width: 100%;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-/* Notes styles */
-.note-input {
-    width: 100%;
-    margin-bottom: 20px;
-}
-
-.notes-list {
-    width: 100%;
-    margin-top: 20px;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.note-item {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+/* Navbar Styling */
+.top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #e2e6ea;
+    padding: 2rem 10%;
 }
 
-.note-content {
-    flex: 1;
-    margin-right: 15px;
+.logo {
+    font-size: 1.2rem;
+    font-weight: 500;
 }
 
-.note-item p {
-    margin-right: 15px;
-    color: #333;
-    word-break: break-word;
-    cursor: pointer;
+.logo span {
+    color: var(--main-color);
 }
 
-.note-edit {
-    display: none;
-    width: 100%;
-    margin: 0;
+.logo .icon {
+    font-size: 1.5em;
 }
 
-.note-actions {
-    display: flex;
-    gap: 8px;
+.nav-links a {
+    text-decoration: none;
+    color: var(--sub-color);
+    margin-left: 1.5rem;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
 }
 
-.edit-note-btn,
-.delete-note-btn {
-    width: auto;
-    margin-top: 0;
-    padding: 5px 10px;
-    font-size: 12px;
+.nav-links a:hover {
+    color: var(--text-color);
 }
 
-.edit-note-btn {
-    background: #28a745;
+.nav-links a.accent {
+    color: var(--main-color);
 }
 
-.edit-note-btn:hover {
-    background: #218838;
+.nav-links a.danger:hover {
+    color: var(--error-color);
 }
 
-.delete-note-btn {
-    background: #dc3545;
+/* Reverted Container Logic */
+.container {
+    padding: 10% 2rem;
+    text-align: center;
 }
 
-.delete-note-btn:hover {
-    background: #c82333;
-}
-
-.save-btn,
-.cancel-btn {
-    display: none;
+h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: -1px;
 }
