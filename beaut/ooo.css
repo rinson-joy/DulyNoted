@@ -1,5 +1,5 @@
 /* Monkeytype Palette - Light Theme (Default) */
-.light {
+:root {
     --bg-color: #ffffff;
     --main-color: #e2b714;
     --sub-color: #646669;
