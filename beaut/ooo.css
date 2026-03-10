@@ -1,5 +1,5 @@
 /* Monkeytype Palette - Light Theme (Default) */
-:root {
+.light {
     --bg-color: #ffffff;
     --main-color: #e2b714;
     --sub-color: #646669;
@@ -103,4 +103,22 @@ button {
 button:hover {
     background-color: var(--main-color);
     color: #000;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .nav-links a {
+        margin-left: 0;
+    }
 }

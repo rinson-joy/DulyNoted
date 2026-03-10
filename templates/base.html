@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}App{% endblock %}</title>
+    <script>
+        // Apply persisted theme as early as possible to prevent flash of unstyled background.
+        const _theme = localStorage.getItem('theme');
+        if (_theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='ooo.css') }}">
     {% block extra_head %}{% endblock %}
@@ -35,9 +42,23 @@
         <button onclick="changeMode()">Change Mode</button>
 
         <script>
-            function changeMode() {
-                document.body.classList.toggle("dark");
+            const themeKey = 'theme';
+
+            function applyTheme(theme) {
+                document.body.classList.toggle('dark', theme === 'dark');
+                document.body.classList.toggle('light', theme !== 'dark');
             }
+
+            function changeMode() {
+                const nextTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+                applyTheme(nextTheme);
+                localStorage.setItem(themeKey, nextTheme);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedTheme = localStorage.getItem(themeKey) || 'light';
+                applyTheme(savedTheme);
+            });
         </script>
     </div>
 
