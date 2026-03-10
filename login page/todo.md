@@ -27,3 +27,6 @@ Frontend
 
 - Create darkmode/lightmode 
     - can create multiple themes along those lines
+- Get rid of the whitespace in username/password
+    - same goes for the role selection menu in admin panel
+- Keep the role selection menu in the centre
