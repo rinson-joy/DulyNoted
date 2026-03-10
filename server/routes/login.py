@@ -17,9 +17,10 @@ def add_user():
     data = fl.request.get_json(silent=True) or fl.request.form
     username = data.get("username")
     password = data.get("password")
+    email = data.get("email")
     
-    if not username or not password:
-        return fl.jsonify({"message": "Missing username or password"}), 400
+    if not username or not password or not email:
+        return fl.jsonify({"message": "Missing username, email, or password"}), 400
         
     if col.find_one({"username": username}):
         return fl.jsonify({"message": "username already exists"}), 400 
@@ -28,7 +29,7 @@ def add_user():
 
     role = "user"
     
-    col.insert_one({"username": username, "password": password, "role": role})
+    col.insert_one({"username": username, "password": password, "role": role, "email": email})
     return fl.jsonify({
         "message": f"registered successfully as {role}"
     }), 201
@@ -47,11 +48,12 @@ def login():
     data = fl.request.get_json(silent=True) or fl.request.form
     username = data.get("username")
     password = data.get("password")
+    email = data.get("email")
     
-    if not username or not password:
+    if not username or not password or not email:
         return fl.jsonify({"message": "Missing fields"}), 400
         
-    user = col.find_one({"username": username, "password": password})
+    user = col.find_one({"username": username, "password": password, "email": email})
     if user:
         fl.session.clear()
         fl.session["user"] = user["username"]
@@ -77,5 +79,4 @@ def delete_user():
     if fl.request.method == 'GET':
         return fl.render_template("delete.html", name="Delete")
     return fl.jsonify({"message": "Protected delete endpoint"}), 200
-
 
