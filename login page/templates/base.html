@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}App{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ooo.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="logo">
+            <span class="icon">⌂</span> home
+        </div>
+        <div class="nav-links">
+            <a href="/home">home</a>
+            <a href="/register">register</a>
+            <a href="/login">login</a>
+            {% if session.role == 'master' %}
+            <a href="/admin" class="accent">admin panel</a>
+            {% endif %}
+            {% if session.user %}
+            <a href="/logout">logout</a>
+            {% endif %}
+            <a href="/delete" class="danger">delete</a>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
