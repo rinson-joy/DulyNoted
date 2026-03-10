@@ -22,6 +22,12 @@ Backend
 - Split backend
     - Different files for different responsibilities -->
 - Collapse all html and css files into react.
+- Diary feature
+    - similar to notes but it saves the keystrokes
+    - 'view/play' diary shows the diary entry in the same way it was typed.
+    - create a database to save the keystrokes with the characters.
+- E-mail login
+    - sharing notes using mail, through the app.
 
 Frontend
 
