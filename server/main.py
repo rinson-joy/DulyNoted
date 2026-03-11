@@ -15,10 +15,12 @@ app.secret_key = "super_secret_key_123"
 from routes.login import login_bp
 from routes.notes import notes_bp
 from routes.admin import admin_bp
+from routes.share import share_bp
 
 app.register_blueprint(login_bp)
 app.register_blueprint(notes_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(share_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -59,7 +59,7 @@ def login():
         fl.session.clear()
         fl.session["user"] = user["username"]
         # Stores the role from DB into session.
-        fl.session["role"] = user.get("role", "user") 
+        fl.session["role"] = user.get("role", "user")
         return fl.jsonify({
             "message": "Login successful",
             "username": user["username"],

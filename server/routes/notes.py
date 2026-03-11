@@ -32,6 +32,7 @@ def add_note():
     
     return fl.jsonify({"message": "Note added", "id": str(note_id)}), 201
 
+
 @notes_bp.route('/api/notes/<note_id>', methods=['DELETE'])
 @login_required
 def delete_note(note_id):

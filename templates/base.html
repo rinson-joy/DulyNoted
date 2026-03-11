@@ -41,6 +41,9 @@
             {% else %}
             <a href="/login">login</a>
             {% endif %}
+            {% if session.user and request.path != '/notes' %}
+            <a href="/notes">notes</a>
+            {% endif %}
             {% if session.role == 'master' %}
                 {% if request.path == '/admin' %}
                 <a href="/notes" class="accent">notes</a>

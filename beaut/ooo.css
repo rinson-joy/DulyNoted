@@ -127,3 +127,170 @@ button:hover {
         margin-left: 0;
     }
 }
+
+/* Notes modal */
+.notes-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 50;
+}
+
+.notes-modal.open {
+    display: flex;
+}
+
+.notes-panel {
+    width: min(900px, 92vw);
+    max-height: 86vh;
+    overflow: auto;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 2px solid var(--main-color);
+    border-radius: 10px;
+    padding: 1.75rem;
+    text-align: left;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.notes-panel h2 {
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+.close-btn {
+    padding: 6px 18px;
+}
+
+.note-input {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.note-input textarea,
+.note-edit {
+    width: 100%;
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--sub-color);
+    border-radius: 6px;
+    padding: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.note-edit {
+    display: none;
+}
+
+.notes-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.notes-inbox {
+    border: 1px solid var(--sub-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.inbox-header h2 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+.share-requests {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.share-request {
+    border: 1px solid var(--sub-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.share-content {
+    color: var(--sub-color);
+    margin-top: 0.25rem;
+}
+
+.share-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.shared-badge {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--sub-color);
+    margin-bottom: 0.5rem;
+}
+
+.note-item {
+    border: 1px solid var(--sub-color);
+    border-radius: 8px;
+    padding: 1rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.note-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.note-actions button {
+    padding: 6px 18px;
+}
+
+.share-user-select {
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--sub-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.save-btn,
+.cancel-btn {
+    display: none;
+}
+
+.response-container {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.response-container.success {
+    color: var(--main-color);
+}
+
+.response-container.error {
+    color: var(--error-color);
+}
+
+.notes-launch {
+    margin-top: 1.25rem;
+}

@@ -15,6 +15,15 @@
             <button id="addNoteBtn">Add Note</button>
         </div>
 
+        <div class="notes-inbox">
+            <div class="inbox-header">
+                <h2>Inbox</h2>
+            </div>
+            <div id="shareRequests" class="share-requests">
+                <p>Loading share requests...</p>
+            </div>
+        </div>
+
         <div id="notesList" class="notes-list">
             <p>Loading notes...</p>
         </div>
@@ -37,9 +46,11 @@
 
             let html = '';
             notes.forEach(note => {
+                const sharedBadge = note.shared_from ? `<span class="shared-badge">Shared by ${note.shared_from}</span>` : '';
                 html += `
                     <div class="note-item">
                         <div class="note-content">
+                            ${sharedBadge}
                             <p id="note-text-${note._id}" ondblclick="startInlineEdit('${note._id}')">${note.content}</p>
                             <textarea id="note-edit-${note._id}" class="note-edit" rows="3"></textarea>
                         </div>
@@ -47,6 +58,10 @@
                             <button class="edit-note-btn save-btn" onclick="saveInlineEdit('${note._id}')">Save</button>
                             <button class="delete-note-btn cancel-btn" onclick="cancelInlineEdit('${note._id}')">Cancel</button>
                             <button class="delete-note-btn" onclick="deleteNote('${note._id}')">Delete</button>
+                            <select class="share-user-select" id="share-user-${note._id}">
+                                <option value="">Share with...</option>
+                            </select>
+                            <button class="share-note-btn" onclick="shareNote('${note._id}')">Share</button>
                         </div>
                     </div>
                 `;
@@ -55,10 +70,9 @@
         }
 
         document.getElementById('addNoteBtn').addEventListener('submit', async (e) => {
-            // Wait, this is a button, not a form.
+
         });
 
-        // Fixed add note logic
         document.getElementById('addNoteBtn').onclick = async () => {
             const content = document.getElementById('noteContent').value;
             const responseDiv = document.getElementById('response');
@@ -161,6 +175,104 @@
             }
         }
 
-        fetchNotes();
+        async function fetchShareRequests() {
+            const response = await fetch('/api/notes/requests');
+            const requests = await response.json();
+            const shareRequestsDiv = document.getElementById('shareRequests');
+
+            if (!requests.length) {
+                shareRequestsDiv.innerHTML = '<p>No share requests.</p>';
+                return;
+            }
+
+            let html = '';
+            requests.forEach(req => {
+                html += `
+                    <div class="share-request">
+                        <div class="share-preview">
+                            <p><strong>${req.owner}</strong> shared a note:</p>
+                            <p class="share-content">${req.note_content || ''}</p>
+                        </div>
+                        <div class="share-actions">
+                            <button onclick="acceptShare('${req._id}')">Accept</button>
+                            <button class="delete-note-btn" onclick="rejectShare('${req._id}')">Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+            shareRequestsDiv.innerHTML = html;
+        }
+
+        async function acceptShare(requestId) {
+            const response = await fetch(`/api/notes/requests/${requestId}/accept`, { method: 'POST' });
+            if (response.ok) {
+                fetchNotes();
+                fetchShareRequests();
+            }
+        }
+
+        async function rejectShare(requestId) {
+            const response = await fetch(`/api/notes/requests/${requestId}/reject`, { method: 'POST' });
+            if (response.ok) {
+                fetchShareRequests();
+            }
+        }
+
+        async function shareNote(noteId) {
+            const select = document.getElementById(`share-user-${noteId}`);
+            const recipient = select ? select.value : '';
+            if (!recipient) return;
+            const responseDiv = document.getElementById('response');
+            const messageSpan = document.getElementById('message');
+
+            try {
+                const response = await fetch('/api/notes/share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ note_id: noteId, recipient: recipient })
+                });
+                const result = await response.json();
+
+                messageSpan.textContent = result.message;
+                responseDiv.className = 'response-container ' + (response.ok ? 'success' : 'error');
+            } catch (error) {
+                messageSpan.textContent = 'An error occurred.';
+                responseDiv.className = 'response-container error';
+            }
+        }
+
+        async function fetchUsers() {
+            const response = await fetch('/api/users');
+            const users = await response.json();
+            window._shareUsers = users.map(u => u.username).filter(Boolean);
+        }
+
+        function hydrateShareSelects() {
+            const selects = document.querySelectorAll('.share-user-select');
+            selects.forEach(select => {
+                const current = select.value;
+                let options = '<option value="">Share with...</option>';
+                (window._shareUsers || []).forEach(username => {
+                    const selected = current === username ? 'selected' : '';
+                    options += `<option value="${username}" ${selected}>${username}</option>`;
+                });
+                select.innerHTML = options;
+            });
+        }
+
+        async function initPage() {
+            await fetchUsers();
+            await fetchNotes();
+            fetchShareRequests();
+            hydrateShareSelects();
+        }
+
+        const _origFetchNotes = fetchNotes;
+        fetchNotes = async () => {
+            await _origFetchNotes();
+            hydrateShareSelects();
+        };
+
+        initPage();
     </script>
 {% endblock %}

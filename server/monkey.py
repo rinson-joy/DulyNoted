@@ -9,6 +9,7 @@ client = pm.MongoClient(key)
 db = client["juicy"]
 col = db["userdata"]
 notes_col = db["notes"]
+share_col = db["shared"]
 
 def login_required(f):
     @wraps(f)
