@@ -1,5 +1,5 @@
 import flask as fl
-from monkey import col, login_required
+from monkey import col, login_required, notes_col
 
 # Define the blueprint
 login_bp = fl.Blueprint("login_bp", __name__)
@@ -40,6 +40,7 @@ def add_user():
 def debug_session():
     return fl.jsonify(dict(fl.session))
 
+# Log in.
 @login_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if fl.request.method == 'GET':
@@ -50,10 +51,10 @@ def login():
     password = data.get("password")
     email = data.get("email")
     
-    if not username or not password or not email:
+    if not username or not password:
         return fl.jsonify({"message": "Missing fields"}), 400
         
-    user = col.find_one({"username": username, "password": password, "email": email})
+    user = col.find_one({"username": username, "password": password})
     if user:
         fl.session.clear()
         fl.session["user"] = user["username"]
@@ -78,5 +79,36 @@ def logout():
 def delete_user():
     if fl.request.method == 'GET':
         return fl.render_template("delete.html", name="Delete")
-    return fl.jsonify({"message": "Protected delete endpoint"}), 200
+    
+    data = fl.request.get_json(silent=True) or fl.request.form
+    username = data.get("username")
+    password = data.get("password")
+    role = data.get("role")
+
+    if not username or not password:
+        return fl.jsonify({"message": "Missing username or password"}), 400
+
+    # Only allow deleting your own account unless master.
+    if fl.session.get("user") != username and fl.session.get("role") != "master":
+        return fl.jsonify({"message": "Not allowed to delete this user"}), 403
+
+    query = {"username": username, "password": password}
+    if role:
+        query["role"] = role
+
+    user = col.find_one(query)
+    if not user:
+        return fl.jsonify({"message": "Invalid credentials"}), 401
+
+    if user.get("role") == "master" and fl.session.get("role") != "master":
+        return fl.jsonify({"message": "Cannot delete master account"}), 403
+
+    result = col.delete_one({"username": username})
+    if result.deleted_count:
+        notes_col.delete_many({"owner": username})
+        if fl.session.get("user") == username:
+            fl.session.clear()
+        return fl.jsonify({"message": "User deleted"}), 200
+
+    return fl.jsonify({"message": "User not found"}), 404
 

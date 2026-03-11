@@ -47,12 +47,17 @@ body {
     font-weight: 500;
 }
 
-.logo span {
-    color: var(--main-color);
+.logo a {
+    text-decoration: none;
 }
 
 .logo .icon {
+    text-decoration: none;
+    color: var(--main-color);
     font-size: 1.5em;
+}
+.home-logo {
+    color: var(--text-color);
 }
 
 /* Navigation Links */

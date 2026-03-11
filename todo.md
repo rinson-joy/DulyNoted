@@ -32,8 +32,12 @@ Backend
 Frontend
 
 <!-- - Create darkmode/lightmode  -->
-    - can create multiple themes along those lines
-- Get rid of the whitespace in username/password
-    - same goes for the role selection menu in admin panel
-- Keep the role selection menu in the centre
--need to align the notes containers 
+    - can create multiple themes along those lines(5 light themes, 5 dark themes).
+    - user can create custom themes alongside set themes.
+- Get rid of the whitespace in username/password.
+    - same goes for the role selection menu in admin panel.
+- Keep the role selection menu in the centre.
+    - need to align the notes containers.
+- E-mail login.
+    - sharing notes using mail interface.
+    - should be shared as a notification, user can accept or reject it.
