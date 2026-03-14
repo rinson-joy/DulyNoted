@@ -20,6 +20,15 @@
 <body>
     <nav class="top-nav">
         <div class="logo">
+            {% if request.path == '/notes' %}
+            <button class="icon-btn menu-btn" id="notesMenuBtn" aria-label="toggle notes menu">
+                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            {% endif %}
             <a href="/home" class="icon">⌂</a>
             <a href="/home" class="home-logo">DulyNoted.</a>
         </div>

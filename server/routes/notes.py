@@ -13,7 +13,11 @@ def notes():
 @login_required
 def get_notes():
     user_notes = list(notes_col.find({"owner": fl.session["user"]}))
+    untitled_index = 1
     for note in user_notes:
+        if not note.get("title"):
+            note["title"] = f"my notes {untitled_index}"
+            untitled_index += 1
         note["_id"] = str(note["_id"])
     return fl.jsonify(user_notes)
 
@@ -21,12 +25,20 @@ def get_notes():
 @login_required
 def add_note():
     data = fl.request.get_json(silent=True)
+    title = (data.get("title") or "").strip()
     content = data.get("content")
     if not content:
         return fl.jsonify({"message": "Note content is required"}), 400
+    if not title:
+        untitled_count = notes_col.count_documents({
+            "owner": fl.session["user"],
+            "$or": [{"title": {"$exists": False}}, {"title": ""}]
+        })
+        title = f"my notes {untitled_count + 1}"
     
     note_id = notes_col.insert_one({
         "owner": fl.session["user"],
+        "title": title,
         "content": content
     }).inserted_id
     
@@ -48,13 +60,17 @@ def delete_note(note_id):
 @login_required
 def update_note(note_id):
     data = fl.request.get_json(silent=True) or {}
+    title = (data.get("title") or "").strip()
     content = data.get("content")
     if not content:
         return fl.jsonify({"message": "Note content is required"}), 400
     try:
+        update_fields = {"content": content}
+        if title:
+            update_fields["title"] = title[:80]
         result = notes_col.update_one(
             {"_id": ObjectId(note_id), "owner": fl.session["user"]},
-            {"$set": {"content": content}},
+            {"$set": update_fields},
         )
         if result.matched_count:
             return fl.jsonify({"message": "Note updated"}), 200

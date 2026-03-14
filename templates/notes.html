@@ -3,34 +3,39 @@
 {% block title %}{{ name }}{% endblock %}
 
 {% block content %}
-    <div class="container wide">
-        <h1>My Notes</h1>
-        
-        <!-- {% if session.user %}
-        <p class="welcome-msg">Logged in as: <strong>{{ session.user }}</strong></p>
-        {% endif %} -->
-
-        <div class="note-input">
-            <textarea id="noteContent" placeholder="write your note here..." rows="4"></textarea>
-            <button id="addNoteBtn">Add Note</button>
-        </div>
-
-        <div class="notes-inbox">
-            <div class="inbox-header">
-                <h2>inbox</h2>
+    <div class="container wide notes-layout">
+        <div class="notes-main">
+            <div class="notes-title-row">
+                <input id="noteTitle" class="note-title-input" type="text" placeholder="my notes." />
             </div>
-            <div id="shareRequests" class="share-requests">
-                <p>loading share requests...</p>
+
+            <div class="note-input" id="noteInput">
+                <textarea id="noteContent" placeholder="write your note here..." rows="4"></textarea>
+                <div class="note-input-actions">
+                    <div class="note-input-buttons">
+                        <button id="addNoteBtn">add note</button>
+                        <button id="cancelEditBtn" class="cancel-text" onclick="cancelEdit()">cancel</button>
+                    </div>
+                    <span id="messageInline" class="inline-message"></span>
+                    <span class="note-input-spacer" aria-hidden="true"></span>
+                </div>
             </div>
         </div>
 
-        <div id="notesList" class="notes-list">
-            <p>loading notes...</p>
-        </div>
+        <aside class="notes-sidebar" id="notesSidebar">
+            <div class="notes-inbox">
+                <div class="inbox-header">
+                    <h2>inbox</h2>
+                </div>
+                <div id="shareRequests" class="share-requests">
+                    <p>loading share requests...</p>
+                </div>
+            </div>
 
-        <div id="response" class="response-container">
-            <span id="message"></span>
-        </div>
+            <div id="notesList" class="notes-list">
+                <p>loading notes...</p>
+            </div>
+        </aside>
     </div>
 
     <div id="deleteModal" class="delete-modal" aria-hidden="true">
@@ -55,6 +60,28 @@
             </div>
         </div>
     </div>
+
+    <div id="requestModal" class="share-modal" aria-hidden="true">
+        <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="requestTitle">
+            <h2 id="requestTitle">shared note</h2>
+            <div class="share-preview" id="requestPreview"></div>
+            <div class="share-actions">
+                <button class="icon-btn accept-btn" onclick="confirmAccept()" title="accept share">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="8 12 11 15 16 9" />
+                    </svg>
+                </button>
+                <button class="icon-btn reject-btn" onclick="confirmReject()" title="reject share">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="8" y1="12" x2="16" y2="12" />
+                    </svg>
+                </button>
+                <button class="icon-btn cancel-delete-btn" onclick="closeShareRequestModal()">cancel</button>
+            </div>
+        </div>
+    </div>
     
     <script>
         async function fetchNotes() {
@@ -70,45 +97,26 @@
             let html = '';
             notes.forEach(note => {
                 const sharedBadge = note.shared_from ? `<span class="shared-badge">shared by ${note.shared_from}</span>` : '';
+                const titleText = note.title || (note.content || '').split('\n')[0] || 'untitled';
                 html += `
-                    <div class="note-item">
+                    <div class="note-item" id="note-item-${note._id}" data-title="${titleText}" data-content="${(note.content || '').replace(/"/g, '&quot;')}" onclick="startEdit('${note._id}')">
                         <div class="note-content">
                             ${sharedBadge}
-                            <p id="note-text-${note._id}">${note.content}</p>
-                            <textarea id="note-edit-${note._id}" class="note-edit" rows="3"></textarea>
+                            <p id="note-text-${note._id}">${titleText}</p>
                         </div>
                         <div class="note-actions">
-                            <button class="icon-btn save-btn" onclick="saveInlineEdit('${note._id}')" title="save note">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                  <path d="M15.2 3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V8.8a3 3 0 0 0-.88-2.12l-2.8-2.8A3 3 0 0 0 15.2 3z" />
-                                  <path d="M7 3v4a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V3" />
-                                  <path d="M9 21v-5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5" />
-                                </svg>
-                            </button>
-                            <button class="icon-btn cancel-btn" onclick="cancelInlineEdit('${note._id}')" title="cancel edit">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                  <circle cx="12" cy="12" r="10" />
-                                  <line x1="8" y1="12" x2="16" y2="12" />
-                                </svg>
-                            </button>
-                            <button onclick="activeNoteId='${note._id}'; openDeleteModal(activeNoteId)" class="icon-btn delete-btn" title="delete note">
+                            <button onclick="event.stopPropagation(); activeNoteId='${note._id}'; openDeleteModal(activeNoteId)" class="icon-btn delete-btn" title="delete note">
                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
                             </button>
-                            <button class="icon-btn edit-btn" onclick="startInlineEdit('${note._id}')" title="edit note">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                </svg>
-                            </button>
-                            <button class="icon-btn share-btn" onclick="shareNote('${note._id}')" title="share note">
+                            <button class="icon-btn share-btn" onclick="event.stopPropagation(); shareNote('${note._id}')" title="share note">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M4 12v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6" />
                                   <polyline points="16 6 12 2 8 6" />
                                   <line x1="12" y1="2" x2="12" y2="15" />
                                 </svg>
                             </button>
-                            <div class="share-select-wrap is-hidden" data-note-id="${note._id}">
-                                <div class="share-menu" id="share-menu-${note._id}" role="listbox" aria-label="share with user"></div>
+                            <div class="share-select-wrap is-hidden" data-note-id="${note._id}" onclick="event.stopPropagation()">
+                                <div class="share-menu" id="share-menu-${note._id}" role="listbox" aria-label="share with user" onclick="event.stopPropagation()"></div>
                             </div>
                         </div>
                     </div>
@@ -117,41 +125,90 @@
             notesListDiv.innerHTML = html;
         }
 
-        document.getElementById('addNoteBtn').addEventListener('submit', async (e) => {
+        let currentEditId = null;
+        let inlineMessageTimer = null;
 
-        });
+        function showInlineMessage(text, type) {
+            const messageSpan = document.getElementById('messageInline');
+            if (!messageSpan) return;
+            messageSpan.textContent = text;
+            messageSpan.className = 'inline-message ' + (type || '');
+            if (inlineMessageTimer) clearTimeout(inlineMessageTimer);
+            inlineMessageTimer = setTimeout(() => {
+                messageSpan.textContent = '';
+                messageSpan.className = 'inline-message';
+            }, 3000);
+        }
+
+        function startEdit(noteId) {
+            const item = document.getElementById(`note-item-${noteId}`);
+            if (!item) return;
+            const input = document.getElementById('noteContent');
+            const titleInput = document.getElementById('noteTitle');
+            const addBtn = document.getElementById('addNoteBtn');
+            const form = document.getElementById('noteInput');
+            currentEditId = noteId;
+            input.value = item.dataset.content || '';
+            if (titleInput) titleInput.value = item.dataset.title || '';
+            input.focus();
+            addBtn.textContent = 'save';
+            if (form) form.classList.add('is-editing');
+
+            const sidebar = document.getElementById('notesSidebar');
+            const menuBtn = document.getElementById('notesMenuBtn');
+            const notesMain = document.querySelector('.notes-main');
+            if (sidebar && menuBtn) {
+                sidebar.classList.remove('is-open');
+                menuBtn.classList.remove('is-open');
+            }
+            if (notesMain) notesMain.classList.remove('menu-open');
+        }
+
+        function cancelEdit() {
+            const input = document.getElementById('noteContent');
+            const titleInput = document.getElementById('noteTitle');
+            const addBtn = document.getElementById('addNoteBtn');
+            const form = document.getElementById('noteInput');
+            currentEditId = null;
+            input.value = '';
+            if (titleInput) titleInput.value = '';
+            addBtn.textContent = 'add note';
+            if (form) form.classList.remove('is-editing');
+        }
 
         document.getElementById('addNoteBtn').onclick = async () => {
             const content = document.getElementById('noteContent').value;
-            const responseDiv = document.getElementById('response');
-            const messageSpan = document.getElementById('message');
+            const title = document.getElementById('noteTitle')?.value || '';
 
             if (!content) {
-                messageSpan.textContent = "note cannot be empty";
-                responseDiv.className = 'response-container error';
+                showInlineMessage("note cannot be empty", 'error');
                 return;
             }
 
             try {
-                const response = await fetch('/api/notes', {
-                    method: 'POST',
+                const endpoint = currentEditId ? `/api/notes/${currentEditId}` : '/api/notes';
+                const method = currentEditId ? 'PUT' : 'POST';
+                const response = await fetch(endpoint, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: content })
+                    body: JSON.stringify({ title: title, content: content })
                 });
                 const result = await response.json();
                 
                 if (response.ok) {
                     document.getElementById('noteContent').value = '';
+                    const titleInput = document.getElementById('noteTitle');
+                    if (titleInput) titleInput.value = '';
                     fetchNotes();
-                    messageSpan.textContent = result.message;
-                    responseDiv.className = 'response-container success';
+                    showInlineMessage(result.message, 'success');
+                    if (currentEditId) {
+                        cancelEdit();
+                    }
                 } else {
-                    messageSpan.textContent = result.message;
-                    responseDiv.className = 'response-container error';
+                    showInlineMessage(result.message, 'error');
                 }
             } catch (error) {
-                messageSpan.textContent = 'an error occurred.';
-                responseDiv.className = 'response-container error';
+                showInlineMessage('an error occurred.', 'error');
             }
         };
 
@@ -195,82 +252,55 @@
             }
         }
 
-        function toggleInlineButtons(noteId, editing) {
-            const root = document.getElementById(`note-text-${noteId}`)?.closest('.note-item');
-            if (!root) return;
-            root.classList.toggle('is-editing', editing);
-            const actions = root.querySelector('.note-actions');
-            if (actions) {
-                actions.classList.toggle('is-editing', editing);
+        let activeShareRequest = null;
+        window._shareRequests = [];
+
+        function openShareRequestModal(request) {
+            activeShareRequest = request;
+            const modal = document.getElementById('requestModal');
+            const title = document.getElementById('requestTitle');
+            const preview = document.getElementById('requestPreview');
+            if (!modal) return;
+            if (title && request?.owner) {
+                title.textContent = `${request.owner} shared a note`;
             }
-            const saveBtn = root.querySelector('.save-btn');
-            const cancelBtn = root.querySelector('.cancel-btn');
-            if (saveBtn) saveBtn.style.display = editing ? 'inline-block' : 'none';
-            if (cancelBtn) cancelBtn.style.display = editing ? 'inline-block' : 'none';
+            if (preview) {
+                preview.textContent = request?.note_content || '';
+            }
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
         }
 
-        function startInlineEdit(noteId) {
-            const textEl = document.getElementById(`note-text-${noteId}`);
-            const editEl = document.getElementById(`note-edit-${noteId}`);
-            if (!textEl || !editEl) return;
-            const contentWrap = textEl.closest('.note-content');
-            if (contentWrap) {
-                contentWrap.dataset.minHeight = `${textEl.offsetHeight}px`;
-                contentWrap.style.minHeight = `${textEl.offsetHeight}px`;
-            }
-            editEl.value = textEl.textContent;
-            textEl.style.display = 'none';
-            editEl.style.display = 'block';
-            editEl.style.height = `${textEl.offsetHeight}px`;
-            editEl.focus();
-            editEl.setSelectionRange(editEl.value.length, editEl.value.length);
-            toggleInlineButtons(noteId, true);
+        function closeShareRequestModal() {
+            const modal = document.getElementById('requestModal');
+            if (!modal) return;
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
         }
 
-        function cancelInlineEdit(noteId) {
-            const textEl = document.getElementById(`note-text-${noteId}`);
-            const editEl = document.getElementById(`note-edit-${noteId}`);
-            if (!textEl || !editEl) return;
-            const contentWrap = textEl.closest('.note-content');
-            editEl.value = '';
-            editEl.style.display = 'none';
-            textEl.style.display = 'block';
-            editEl.style.height = '';
-            if (contentWrap) {
-                contentWrap.style.minHeight = '';
-                delete contentWrap.dataset.minHeight;
-            }
-            toggleInlineButtons(noteId, false);
+        function openShareRequestModalByIndex(index) {
+            const req = (window._shareRequests || [])[index];
+            if (!req) return;
+            openShareRequestModal(req);
         }
 
-        async function saveInlineEdit(noteId) {
-            const editEl = document.getElementById(`note-edit-${noteId}`);
-            const updated = editEl ? editEl.value : '';
-            if (!updated.trim()) {
-                alert('note cannot be empty');
-                return;
-            }
-            try {
-                const response = await fetch(`/api/notes/${noteId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: updated })
-                });
-                if (response.ok) {
-                    fetchNotes();
-                } else {
-                    const result = await response.json();
-                    alert(result.message || 'failed to update note');
-                }
-            } catch (error) {
-                console.error('Error updating note:', error);
-            }
+        async function confirmAccept() {
+            if (!activeShareRequest) return;
+            await acceptShare(activeShareRequest._id);
+            closeShareRequestModal();
+        }
+
+        async function confirmReject() {
+            if (!activeShareRequest) return;
+            await rejectShare(activeShareRequest._id);
+            closeShareRequestModal();
         }
 
         async function fetchShareRequests() {
             const response = await fetch('/api/notes/requests');
             const requests = await response.json();
             const shareRequestsDiv = document.getElementById('shareRequests');
+            window._shareRequests = requests || [];
 
             if (!requests.length) {
                 shareRequestsDiv.innerHTML = '<p>no share requests.</p>';
@@ -278,17 +308,12 @@
             }
 
             let html = '';
-            requests.forEach(req => {
+            requests.forEach((req, idx) => {
                 html += `
                     <div class="share-request">
-                        <div class="share-preview">
-                            <p><strong>${req.owner}</strong> shared a note:</p>
-                            <p class="share-content">${req.note_content || ''}</p>
-                        </div>
-                        <div class="share-actions">
-                            <button onclick="acceptShare('${req._id}')">accept</button>
-                            <button class="delete-note-btn" onclick="rejectShare('${req._id}')">reject</button>
-                        </div>
+                        <button class="share-request-item" onclick='openShareRequestModalByIndex(${idx})'>
+                            <span class="shared-badge">${req.owner} shared a note</span>
+                        </button>
                     </div>
                 `;
             });
@@ -338,8 +363,8 @@
                 title.textContent = recipient ? `share with ${recipient}?` : 'share with user?';
             }
             if (preview) {
-                const noteTextEl = document.getElementById(`note-text-${noteId}`);
-                preview.textContent = noteTextEl ? noteTextEl.textContent.trim() : '';
+                const item = document.getElementById(`note-item-${noteId}`);
+                preview.textContent = item ? (item.dataset.content || '') : '';
                 preview.classList.add('is-collapsed');
             }
             if (toggleBtn) {
@@ -402,8 +427,6 @@
 
         async function performShare(noteId, recipient) {
             const wrap = document.querySelector(`.share-select-wrap[data-note-id="${noteId}"]`);
-            const responseDiv = document.getElementById('response');
-            const messageSpan = document.getElementById('message');
 
             try {
                 const response = await fetch('/api/notes/share', {
@@ -413,16 +436,14 @@
                 });
                 const result = await response.json();
 
-                messageSpan.textContent = result.message;
-                responseDiv.className = 'response-container ' + (response.ok ? 'success' : 'error');
+                showInlineMessage(result.message, response.ok ? 'success' : 'error');
 
                 if (response.ok && wrap) {
                     wrap.classList.remove('is-open');
                     wrap.classList.add('is-hidden');
                 }
             } catch (error) {
-                messageSpan.textContent = 'an error occurred.';
-                responseDiv.className = 'response-container error';
+                showInlineMessage('an error occurred.', 'error');
             }
         }
 
@@ -439,7 +460,7 @@
                 if (!menu) return;
                 let items = '';
                 (window._shareUsers || []).forEach(username => {
-                    items += `<button class="share-option" type="button" data-username="${username}">${username}</button>`;
+                    items += `<button class="share-option" type="button" data-username="${username}" onclick="event.stopPropagation(); shareNote(this.closest('.share-select-wrap').dataset.noteId, this.dataset.username)">${username}</button>`;
                 });
                 menu.innerHTML = items;
             });
@@ -468,12 +489,35 @@
 
         initPage();
 
+        const menuBtn = document.getElementById('notesMenuBtn');
+        const sidebar = document.getElementById('notesSidebar');
+        const notesMain = document.querySelector('.notes-main');
+        if (menuBtn && sidebar) {
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('is-open');
+                menuBtn.classList.toggle('is-open');
+                if (notesMain) notesMain.classList.toggle('menu-open', sidebar.classList.contains('is-open'));
+            });
+            document.addEventListener('click', (e) => {
+                if (!sidebar.classList.contains('is-open')) return;
+                const isMenuBtn = e.target.closest('#notesMenuBtn');
+                const isSidebar = e.target.closest('#notesSidebar');
+                if (isMenuBtn || isSidebar) return;
+                sidebar.classList.remove('is-open');
+                menuBtn.classList.remove('is-open');
+                if (notesMain) notesMain.classList.remove('menu-open');
+            });
+        }
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && isDeleteOpen) {
                 closeDeleteModal();
             }
             if (e.key === 'Escape' && isShareOpen) {
                 closeShareModal();
+            }
+            if (e.key === 'Escape') {
+                closeShareRequestModal();
             }
         });
 
@@ -486,17 +530,7 @@
         document.addEventListener('click', (e) => {
             const shareBtn = e.target.closest('.share-btn');
             const shareMenu = e.target.closest('.share-menu');
-            const shareOption = e.target.closest('.share-option');
             const shareWrap = e.target.closest('.share-select-wrap');
-            if (shareOption) {
-                const wrap = shareOption.closest('.share-select-wrap');
-                const noteId = wrap ? wrap.dataset.noteId : null;
-                const username = shareOption.dataset.username;
-                if (noteId && username) {
-                    shareNote(noteId, username);
-                }
-                return;
-            }
             if (shareBtn || shareMenu || shareWrap) return;
             document.querySelectorAll('.share-select-wrap.is-open').forEach(wrap => {
                 wrap.classList.remove('is-open');
