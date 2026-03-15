@@ -5,6 +5,7 @@
     --sub-color: #646669;
     --text-color: #202124;
     --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
 }
 
 /* Dark Theme */
@@ -14,6 +15,47 @@
     --sub-color: #646669;
     --text-color: #d1d0c5;
     --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
+}
+
+/* Light Theme */
+.light {
+    --bg-color: #ffffff;
+    --main-color: #e2b714;
+    --sub-color: #646669;
+    --text-color: #202124;
+    --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
+}
+
+/* Solarized Light Theme */
+.solarized-light {
+    --bg-color: #fdf6e3;
+    --main-color: #859900;
+    --sub-color: #2aa198;
+    --text-color: #181819;
+    --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
+}
+
+/* Paper Theme */
+.paper {
+    --bg-color: #eeeeee;
+    --main-color: #444444;
+    --sub-color: #b2b2b2;
+    --text-color: #444444;
+    --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
+}
+
+/* Darling Theme */
+.darling {
+    --bg-color: #fec8cd;
+    --main-color: #a30000;
+    --sub-color: #ffffff;
+    --text-color: #a30000;
+    --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
 }
 
 /* Matrix Theme */
@@ -23,6 +65,7 @@
     --sub-color: #006500;
     --text-color: #d1ffcd;
     --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
 }
 
 /* Phantom Theme */
@@ -32,6 +75,7 @@
     --sub-color: #414868;
     --text-color: #c0caf5;
     --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
 }
 
 /* Red Dragon Theme */
@@ -41,6 +85,7 @@
     --sub-color: #4a4d4e;
     --text-color: #e2a528;
     --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
 }
 
 /* Anti Hero Theme */
@@ -50,6 +95,17 @@
     --sub-color: #ffadad;
     --text-color: #f1deef;
     --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
+}
+
+/* Lilac Mist Theme */
+.lilac-mist {
+    --bg-color: #fffbfe;
+    --main-color: #b94189;
+    --sub-color: #e094c2;
+    --text-color: #5c2954;
+    --error-color: #ca4754;
+    --error-hover-color: #ef5a68;
 }
 
 /* Reset */
@@ -334,13 +390,30 @@ button:hover {
     text-decoration: none;
 }
 
-.share-modal .cancel-delete-btn:hover {
+#outgoingModal .reject-btn,
+#rescindModal .reject-btn {
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: var(--sub-color);
+}
+
+#outgoingModal .reject-btn:hover,
+#outgoingModal .reject-btn:focus,
+#rescindModal .reject-btn:hover,
+#rescindModal .reject-btn:focus {
     color: var(--error-color);
-    text-decoration: none;
+    border: none;
+    outline: none;
+    background: transparent;
 }
 
 #requestModal .cancel-delete-btn:hover {
     color: var(--text-color);
+}
+
+#inboxModal .cancel-delete-btn:hover {
+    color: var(--error-color);
 }
 
 #requestModal .accept-btn,
@@ -353,8 +426,15 @@ button:hover {
     margin-top: 0.5rem;
 }
 
-.delete-btn:hover {
+.danger-link {
     color: var(--error-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.danger-link:hover {
+    color: var(--error-hover-color);
+    text-decoration: none;
 }
 
 /* Form Inputs */
@@ -436,43 +516,43 @@ select {
     text-shadow: none;
 }
 
-html.phantom .settings-select-menu .share-option {
-    text-shadow: none;
-}
-
 .settings-select-menu .dark-option:hover {
     color: #d1d0c5;
     background: rgba(255, 255, 255, 0.04);
     text-shadow: none;
 }
 
-html.phantom .settings-select-menu .matrix-option:hover {
-    color: #15ff00;
-    background: rgba(0, 0, 0, 0.6);
+html.phantom .settings-select-menu .share-option {
     text-shadow: none;
 }
 
-html.phantom .settings-select-menu .dark-option:hover {
-    color: #d1d0c5;
-    background: rgba(255, 255, 255, 0.04);
+.settings-select-menu .light-option:hover {
+    color: #202124;
+    background: rgba(226, 183, 20, 0.08);
     text-shadow: none;
 }
 
-html.phantom .settings-select-menu .phantom-option:hover {
-    color: #7aa2f7;
-    background: rgba(0, 0, 17, 0.6);
-    text-shadow: 0 0 14px rgba(122, 162, 247, 0.9);
-}
-
-html.phantom .settings-select-menu .red-dragon-option:hover {
-    color: #ff3a32;
-    background: rgba(26, 11, 12, 0.6);
+.settings-select-menu .lilac-mist-option:hover {
+    color: #5c2954;
+    background: rgba(185, 65, 137, 0.08);
     text-shadow: none;
 }
 
-html.phantom .settings-select-menu .anti-hero-option:hover {
-    color: #ff3d8b;
-    background: rgba(0, 0, 46, 0.6);
+.settings-select-menu .solarized-light-option:hover {
+    color: #181819;
+    background: rgba(133, 153, 0, 0.08);
+    text-shadow: none;
+}
+
+.settings-select-menu .paper-option:hover {
+    color: #444444;
+    background: rgba(68, 68, 68, 0.08);
+    text-shadow: none;
+}
+
+.settings-select-menu .darling-option:hover {
+    color: #a30000;
+    background: #fec8cd;
     text-shadow: none;
 }
 
@@ -535,6 +615,83 @@ select:focus {
     width: 18px;
     height: 18px;
     display: block;
+}
+
+.notification-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.notification-indicator {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--error-color);
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+.notification-wrap.has-notifications .notification-indicator {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.notification-badge {
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+.notification-badge:hover,
+.notification-badge:focus,
+.notification-badge:focus-visible {
+    background: transparent;
+    outline: none;
+}
+
+.notification-badge:hover svg path {
+    stroke: var(--text-color);
+}
+
+.notification-badge svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+.notification-badge svg path {
+    stroke-width: 1.2;
+}
+
+.notification-menu {
+    left: auto !important;
+    right: 100% !important;
+    top: auto !important;
+    bottom: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 6px;
+    margin-right: 8px;
+}
+
+.notification-menu.share-menu {
+    display: none;
+}
+
+.notification-menu.share-menu.open {
+    display: grid;
+}
+
+.notification-menu.share-menu {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 6px;
 }
 
 .settings-badge:hover {
@@ -883,6 +1040,15 @@ html.phantom .settings-select-btn:hover svg {
     pointer-events: none;
 }
 
+.notes-sidebar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.notes-sidebar {
+    scrollbar-width: none;
+}
+
 .notes-list {
     max-height: calc(100vh - 300px);
     overflow-y: auto;
@@ -1013,6 +1179,23 @@ html.phantom .settings-select-btn:hover svg {
 
 .share-request-item * {
     cursor: pointer;
+}
+
+.inbox-open-btn {
+    width: 100%;
+    border: 1px solid var(--sub-color);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--sub-color);
+    background: transparent;
+    cursor: pointer;
+}
+
+.inbox-open-btn:hover,
+.inbox-open-btn:focus {
+    color: var(--text-color);
+    border-color: var(--main-color);
+    outline: none;
 }
 
 .share-content {
@@ -1147,6 +1330,73 @@ html.phantom .settings-select-btn:hover svg {
 .share-option:hover {
     color: var(--text-color);
     background: rgba(255, 255, 255, 0.04);
+}
+
+/* Theme dropdown hover colors should be option-specific, not current theme */
+.settings-select-menu .share-option:hover,
+.settings-select-menu .share-option.is-hovered {
+    text-shadow: none;
+}
+
+.settings-select-menu .light-option:hover,
+.settings-select-menu .light-option.is-hovered {
+    color: #202124 !important;
+    background: #ffffff !important;
+}
+
+.settings-select-menu .dark-option:hover,
+.settings-select-menu .dark-option.is-hovered {
+    color: #d1d0c5 !important;
+    background: #323437 !important;
+}
+
+.settings-select-menu .matrix-option:hover,
+.settings-select-menu .matrix-option.is-hovered {
+    color: #15ff00 !important;
+    background: #000000 !important;
+}
+
+.settings-select-menu .phantom-option:hover,
+.settings-select-menu .phantom-option.is-hovered {
+    color: #c0caf5 !important;
+    background: #000011 !important;
+    text-shadow: 0 0 14px rgba(122, 162, 247, 0.9);
+}
+
+.settings-select-menu .red-dragon-option:hover,
+.settings-select-menu .red-dragon-option.is-hovered {
+    color: #e2a528 !important;
+    background: #1a0b0c !important;
+}
+
+.settings-select-menu .anti-hero-option:hover,
+.settings-select-menu .anti-hero-option.is-hovered {
+    color: #f1deef !important;
+    background: #00002e !important;
+}
+
+.settings-select-menu .lilac-mist-option:hover,
+.settings-select-menu .lilac-mist-option.is-hovered {
+    color: #b94189 !important;
+    background: #fffbfe !important;
+}
+
+.settings-select-menu .solarized-light-option:hover,
+.settings-select-menu .solarized-light-option.is-hovered {
+    color: #859900 !important;
+    background: #fdf6e3 !important;
+}
+
+.settings-select-menu .paper-option:hover,
+.settings-select-menu .paper-option.is-hovered {
+    color: #444444 !important;
+    background: #eeeeee !important;
+}
+
+.settings-select-menu .darling-option:hover,
+.settings-select-menu .darling-option.is-hovered {
+    color: #a30000 !important;
+    background: #fec8cd !important;
 }
 
 .share-select-wrap {
@@ -1303,6 +1553,22 @@ html.phantom .settings-select-btn:hover svg {
     font-weight: 400;
 }
 
+.inbox-panel {
+    width: min(520px, 92vw);
+}
+
+.inbox-panel h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--main-color);
+}
+
+.inbox-section {
+    display: grid;
+    gap: 0.5rem;
+}
+
 .share-panel p {
     color: var(--sub-color);
 }
@@ -1363,6 +1629,7 @@ html.phantom .settings-select-btn:hover svg {
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
+    margin-top: 1rem;
 }
 
 .share-confirm-btn {

@@ -11,6 +11,18 @@
         if (_theme === 'dark') {
             document.documentElement.classList.add('dark');
         }
+        if (_theme === 'light') {
+            document.documentElement.classList.add('light');
+        }
+        if (_theme === 'solarized-light') {
+            document.documentElement.classList.add('solarized-light');
+        }
+        if (_theme === 'paper') {
+            document.documentElement.classList.add('paper');
+        }
+        if (_theme === 'darling') {
+            document.documentElement.classList.add('darling');
+        }
         if (_theme === 'matrix') {
             document.documentElement.classList.add('matrix');
         }
@@ -22,6 +34,9 @@
         }
         if (_theme === 'anti-hero') {
             document.documentElement.classList.add('anti-hero');
+        }
+        if (_theme === 'lilac-mist') {
+            document.documentElement.classList.add('lilac-mist');
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -65,7 +80,6 @@
                 <a href="/admin" class="accent">admin panel</a>
                 {% endif %}
             {% endif %}
-            <a href="/delete" class="danger">delete</a>
             <div class="theme-toggle">
                 <a class="settings-badge" id="settingsLink" href="/settings" aria-label="Open settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
@@ -77,6 +91,15 @@
                         </g>
                     </svg>
                 </a>
+                <div class="notification-wrap" id="notificationWrap">
+                    <button class="settings-badge notification-badge" id="notificationBtn" aria-label="Open notifications" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
+                            <path d="M17.7778 16.4066C18.1725 16.2808 18.3904 15.8588 18.2646 15.4642C18.1388 15.0696 17.7168 14.8516 17.3222 14.9774L17.7778 16.4066ZM11.6797 15.9343C11.2657 15.9455 10.9391 16.2902 10.9503 16.7043C10.9615 17.1183 11.3062 17.4449 11.7203 17.4337L11.6797 15.9343ZM16.876 16.0131C17.0578 16.3853 17.5068 16.5397 17.8791 16.358C18.2513 16.1762 18.4057 15.7272 18.224 15.3549L16.876 16.0131ZM16.9104 14.374L16.2225 14.6728C16.2269 14.683 16.2316 14.6931 16.2364 14.7031L16.9104 14.374ZM15.9422 10.806L16.6868 10.7157C16.6855 10.7048 16.6839 10.694 16.6821 10.6832L15.9422 10.806ZM11.7068 5.941C11.2926 5.941 10.9568 6.27679 10.9568 6.691C10.9568 7.10521 11.2926 7.441 11.7068 7.441V5.941ZM11.7068 7.441C12.121 7.441 12.4568 7.10521 12.4568 6.691C12.4568 6.27679 12.121 5.941 11.7068 5.941V7.441ZM7.45778 10.807L6.71795 10.6839C6.71614 10.6948 6.71457 10.7057 6.71325 10.7166L7.45778 10.807ZM6.48961 14.374L7.16357 14.7031C7.16843 14.6931 7.17308 14.683 7.1775 14.6728L6.48961 14.374ZM5.17605 15.3549C4.99431 15.7272 5.14873 16.1762 5.52095 16.358C5.89317 16.5397 6.34223 16.3853 6.52397 16.0131L5.17605 15.3549ZM10.9568 6.691C10.9568 7.10521 11.2926 7.441 11.7068 7.441C12.121 7.441 12.4568 7.10521 12.4568 6.691H10.9568ZM12.4568 5C12.4568 4.58579 12.121 4.25 11.7068 4.25C11.2926 4.25 10.9568 4.58579 10.9568 5H12.4568ZM10.9568 6.691C10.9568 7.10521 11.2926 7.441 11.7068 7.441C12.121 7.441 12.4568 7.10521 12.4568 6.691H10.9568ZM12.4568 5C12.4568 4.58579 12.121 4.25 11.7068 4.25C11.2926 4.25 10.9568 4.58579 10.9568 5H12.4568ZM6.07781 14.9774C5.68317 14.8516 5.26125 15.0696 5.13544 15.4642C5.00963 15.8588 5.22756 16.2808 5.6222 16.4066L6.07781 14.9774ZM11.6797 17.4337C12.0938 17.4449 12.4385 17.1183 12.4497 16.7043C12.4609 16.2902 12.1343 15.9455 11.7203 15.9343L11.6797 17.4337ZM10.5 16.523C10.5 16.1088 10.1642 15.773 9.75001 15.773C9.33579 15.773 9.00001 16.1088 9.00001 16.523H10.5ZM14.4049 16.523C14.4049 16.1088 14.0691 15.773 13.6549 15.773C13.2407 15.773 12.9049 16.1088 12.9049 16.523H14.4049ZM17.3222 14.9774C15.4929 15.5606 13.5943 15.8825 11.6797 15.9343L11.7203 17.4337C13.7761 17.3782 15.8144 17.0325 17.7778 16.4066L17.3222 14.9774ZM18.224 15.3549L17.5844 14.0449L16.2364 14.7031L16.876 16.0131L18.224 15.3549ZM17.5983 14.0752C17.1347 13.008 16.8275 11.8759 16.6868 10.7157L15.1977 10.8963C15.3558 12.1997 15.701 13.4723 16.2225 14.6728L17.5983 14.0752ZM16.6821 10.6832C16.4696 9.40313 16.017 8.21501 15.1948 7.33897C14.3526 6.44171 13.1869 5.941 11.7068 5.941V7.441C12.8193 7.441 13.5729 7.80279 14.1011 8.36553C14.6492 8.94949 15.0181 9.81887 15.2024 10.9288L16.6821 10.6832ZM11.7068 5.941C10.2266 5.941 9.05835 6.44146 8.21321 7.33789C7.38755 8.21366 6.93123 9.40201 6.71795 10.6839L8.19761 10.9301C8.38214 9.82099 8.75359 8.95134 9.30463 8.36686C9.83619 7.80304 10.5936 7.441 11.7068 7.441V5.941ZM6.71325 10.7166C6.57244 11.8765 6.26519 13.0083 5.80171 14.0752L7.1775 14.6728C7.69888 13.4727 8.04413 12.2004 8.20232 10.8974L6.71325 10.7166ZM5.81565 14.0449L5.17605 15.3549L6.52397 16.0131L7.16357 14.7031L5.81565 14.0449ZM12.4568 6.691V5H10.9568V6.691H12.4568ZM12.4568 6.691V5H10.9568V6.691H12.4568ZM5.6222 16.4066C7.58558 17.0325 9.62394 17.3782 11.6797 17.4337L11.7203 15.9343C9.80576 15.8825 7.90713 15.5606 6.07781 14.9774L5.6222 16.4066ZM9.00001 16.523V17.023H10.5V16.523H9.00001ZM9.00001 17.023C9.00001 18.5252 10.1921 19.7755 11.7024 19.7755V18.2755C11.0561 18.2755 10.5 17.7327 10.5 17.023H9.00001ZM11.7024 19.7755C13.2127 19.7755 14.4049 18.5252 14.4049 17.023H12.9049C12.9049 17.7327 12.3487 18.2755 11.7024 18.2755V19.7755ZM14.4049 17.023V16.523H12.9049V17.023H14.4049Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <span class="notification-indicator" id="notificationIndicator" aria-hidden="true"></span>
+                    <div class="share-menu settings-select-menu notification-menu" id="notificationMenu" role="listbox" aria-hidden="true"></div>
+                </div>
                 <div class="theme-toggle-inner">
                     <svg id="moon-icon" class="theme-icon" viewBox="0 0 24 24" onclick="setTheme('light')" role="button" aria-label="Switch to light theme"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                     <svg id="sun-icon" class="theme-icon" viewBox="0 0 24 24" onclick="setTheme('dark')" role="button" aria-label="Switch to dark theme"><circle cx="12" cy="12" r="5"></circle>
@@ -89,13 +112,65 @@
             </div>
         </div>
     </nav>
+
+    <div id="inboxModal" class="share-modal" aria-hidden="true">
+        <div class="share-panel inbox-panel" role="dialog" aria-modal="true" aria-labelledby="inboxTitle">
+            <h2 id="inboxTitle">inbox</h2>
+            <div class="inbox-section">
+                <h3>incoming</h3>
+                <div id="inboxIncoming" class="share-requests"></div>
+            </div>
+            <div class="inbox-section">
+                <h3>outgoing</h3>
+                <div id="inboxOutgoing" class="share-requests"></div>
+            </div>
+            <div class="share-actions">
+                <button class="icon-btn cancel-delete-btn" onclick="closeInboxModal()">close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="outgoingModal" class="share-modal" aria-hidden="true">
+        <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="outgoingTitle">
+            <h2 id="outgoingTitle">pending share</h2>
+            <p id="outgoingRecipient" class="shared-badge"></p>
+            <div class="share-preview" id="outgoingPreview"></div>
+            <div class="share-actions">
+                <button class="icon-btn reject-btn" onclick="cancelOutgoingShare()">rescind</button>
+                <button class="icon-btn cancel-delete-btn" onclick="closeOutgoingModal()">close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rescindModal" class="share-modal" aria-hidden="true">
+        <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="rescindTitle">
+            <h2 id="rescindTitle">rescind request?</h2>
+            <p>this will cancel the pending share request.</p>
+            <div class="share-actions">
+                <button class="icon-btn reject-btn" onclick="confirmRescind()">rescind</button>
+                <button class="icon-btn cancel-delete-btn" onclick="closeRescindModal()">cancel</button>
+            </div>
+        </div>
+    </div>
     <script>
             const themeKey = 'theme';
 
             function applyTheme(theme) {
-                document.documentElement.classList.remove('dark', 'matrix', 'phantom', 'red-dragon', 'anti-hero');
+                document.documentElement.classList.remove('dark', 'light', 'solarized-light', 'paper', 'darling', 'matrix', 'phantom', 'red-dragon', 'anti-hero', 'lilac-mist');
                 if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
+                }
+                if (theme === 'light') {
+                    document.documentElement.classList.add('light');
+                }
+                if (theme === 'solarized-light') {
+                    document.documentElement.classList.add('solarized-light');
+                }
+                if (theme === 'paper') {
+                    document.documentElement.classList.add('paper');
+                }
+                if (theme === 'darling') {
+                    document.documentElement.classList.add('darling');
                 }
                 if (theme === 'matrix') {
                     document.documentElement.classList.add('matrix');
@@ -109,16 +184,12 @@
                 if (theme === 'anti-hero') {
                     document.documentElement.classList.add('anti-hero');
                 }
+                if (theme === 'lilac-mist') {
+                    document.documentElement.classList.add('lilac-mist');
+                }
             }
 
             function setTheme(theme) {
-                if (theme === 'default') {
-                    const lastTheme = localStorage.getItem('lastTheme') || 'light';
-                    applyTheme(lastTheme);
-                    localStorage.setItem(themeKey, lastTheme);
-                    return;
-                }
-
                 const previousTheme = localStorage.getItem(themeKey);
                 if (previousTheme && previousTheme !== theme) {
                     localStorage.setItem('lastTheme', previousTheme);
@@ -141,6 +212,282 @@
                 }
             });
         </script>
+
+    <script>
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationMenu = document.getElementById('notificationMenu');
+        const notificationIndicator = document.getElementById('notificationIndicator');
+        const notificationWrap = document.getElementById('notificationWrap');
+        const inboxModal = document.getElementById('inboxModal');
+        let notificationOpen = false;
+
+        function setNotificationMenu(items) {
+            if (!notificationMenu) return;
+            notificationMenu.innerHTML = items;
+        }
+
+        async function loadNotifications() {
+            if (!notificationMenu) return;
+            try {
+                const response = await fetch('/api/notes/requests');
+                const outgoingResponse = await fetch('/api/notes/requests/outgoing');
+                if (!response.ok || !outgoingResponse.ok) {
+                    setNotificationMenu('<button class="share-option" type="button" disabled>no notifications</button>');
+                    return [];
+                }
+                const requests = await response.json();
+                const outgoing = await outgoingResponse.json();
+                if (!requests.length && !outgoing.length) {
+                    setNotificationMenu('<button class="share-option" type="button" disabled>no notifications</button>');
+                    return [];
+                }
+                let items = '';
+                if (requests.length) {
+                    const incomingLabel = requests.length === 1 ? 'incoming share request' : 'incoming share requests';
+                    items += `<button class="share-option notification-item" type="button" data-action="open-inbox">${incomingLabel} (${requests.length})</button>`;
+                }
+                if (outgoing.length) {
+                    const outgoingLabel = outgoing.length === 1 ? 'pending outgoing request' : 'pending outgoing requests';
+                    items += `<button class="share-option notification-item" type="button" data-action="open-inbox">${outgoingLabel} (${outgoing.length})</button>`;
+                }
+                setNotificationMenu(items);
+                return { incoming: requests, outgoing };
+            } catch (error) {
+                setNotificationMenu('<button class="share-option" type="button" disabled>no notifications</button>');
+                return [];
+            }
+        }
+
+        async function loadInboxModal() {
+            const incomingWrap = document.getElementById('inboxIncoming');
+            const outgoingWrap = document.getElementById('inboxOutgoing');
+            if (!incomingWrap || !outgoingWrap) return;
+
+            try {
+                const [incomingRes, outgoingRes] = await Promise.all([
+                    fetch('/api/notes/requests'),
+                    fetch('/api/notes/requests/outgoing'),
+                ]);
+                if (!incomingRes.ok || !outgoingRes.ok) {
+                    incomingWrap.innerHTML = '<p>unable to load.</p>';
+                    outgoingWrap.innerHTML = '<p>unable to load.</p>';
+                    return;
+                }
+                const incoming = await incomingRes.json();
+                const outgoing = await outgoingRes.json();
+
+                if (!incoming.length) {
+                    incomingWrap.innerHTML = '<p>no incoming requests.</p>';
+                } else {
+                    let html = '';
+                    incoming.forEach((req, idx) => {
+                        html += `
+                            <div class="share-request">
+                                <button class="share-request-item" onclick="openShareRequestFromInbox(${idx})">
+                                    <span class="shared-badge">${req.owner} shared a note</span>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    incomingWrap.innerHTML = html;
+                    window._shareRequests = incoming;
+                }
+
+                window._outgoingRequests = outgoing;
+
+                if (!outgoing.length) {
+                    outgoingWrap.innerHTML = '<p>no outgoing requests.</p>';
+                } else {
+                    let html = '';
+                    outgoing.forEach((req, idx) => {
+                        html += `
+                            <div class="share-request">
+                                <button class="share-request-item" onclick="openOutgoingRequestFromInbox(${idx})">
+                                    <span class="shared-badge">pending with ${req.recipient}</span>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    outgoingWrap.innerHTML = html;
+                }
+            } catch (error) {
+                incomingWrap.innerHTML = '<p>unable to load.</p>';
+                outgoingWrap.innerHTML = '<p>unable to load.</p>';
+            }
+        }
+
+        function openInboxModal() {
+            if (!inboxModal) return;
+            inboxModal.classList.add('open');
+            inboxModal.setAttribute('aria-hidden', 'false');
+            loadInboxModal();
+        }
+
+        function closeInboxModal() {
+            if (!inboxModal) return;
+            inboxModal.classList.remove('open');
+            inboxModal.setAttribute('aria-hidden', 'true');
+        }
+
+        window.openInboxModal = openInboxModal;
+
+        function openShareRequestFromInbox(index) {
+            if (typeof window.openShareRequestModalByIndex === 'function') {
+                window.openShareRequestModalByIndex(index);
+                return;
+            }
+            window.location.href = '/notes?openShareRequest=1';
+        }
+
+        function openOutgoingRequestFromInbox(index) {
+            if (typeof window.openOutgoingRequestModalByIndex === 'function') {
+                window.openOutgoingRequestModalByIndex(index);
+                return;
+            }
+            window.location.href = '/notes';
+        }
+
+        function openOutgoingRequestModalByIndex(index) {
+            const req = (window._outgoingRequests || [])[index];
+            if (!req) return;
+            const modal = document.getElementById('outgoingModal');
+            const recipient = document.getElementById('outgoingRecipient');
+            const preview = document.getElementById('outgoingPreview');
+            const cancelBtn = document.querySelector('#outgoingModal .reject-btn');
+            if (!modal) return;
+            if (recipient) recipient.textContent = `pending with ${req.recipient || 'user'}`;
+            if (preview) preview.textContent = req.note_content || '';
+            if (cancelBtn) cancelBtn.dataset.requestId = req._id;
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeOutgoingModal() {
+            const modal = document.getElementById('outgoingModal');
+            if (!modal) return;
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        async function cancelOutgoingShare() {
+            const cancelBtn = document.querySelector('#outgoingModal .reject-btn');
+            const requestId = cancelBtn?.dataset.requestId;
+            if (!requestId) return;
+            openRescindModal(requestId);
+        }
+
+        let pendingRescindId = null;
+
+        function openRescindModal(requestId) {
+            const modal = document.getElementById('rescindModal');
+            if (!modal) return;
+            pendingRescindId = requestId;
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeRescindModal() {
+            const modal = document.getElementById('rescindModal');
+            if (!modal) return;
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            pendingRescindId = null;
+        }
+
+        async function confirmRescind() {
+            const requestId = pendingRescindId;
+            if (!requestId) return;
+            try {
+                const response = await fetch(`/api/notes/requests/${requestId}/cancel`, { method: 'POST' });
+                if (response.ok) {
+                    closeRescindModal();
+                    closeOutgoingModal();
+                    loadInboxModal();
+                    updateNotificationIndicator();
+                }
+            } catch (error) {
+                // silent fail for now
+            }
+        }
+
+        async function updateNotificationIndicator() {
+            if (!notificationIndicator || !notificationWrap) return;
+            try {
+                const settingsResponse = await fetch('/api/settings');
+                if (!settingsResponse.ok) {
+                    notificationWrap.classList.remove('has-notifications');
+                    return;
+                }
+                const settings = await settingsResponse.json();
+                if (settings.allow_incoming_shares === false || settings.allow_share_notifications === false) {
+                    notificationWrap.classList.remove('has-notifications');
+                    return;
+                }
+
+                const response = await fetch('/api/notes/requests');
+                const outgoingResponse = await fetch('/api/notes/requests/outgoing');
+                if (!response.ok || !outgoingResponse.ok) {
+                    notificationWrap.classList.remove('has-notifications');
+                    return;
+                }
+                const requests = await response.json();
+                const outgoing = await outgoingResponse.json();
+                notificationWrap.classList.toggle(
+                    'has-notifications',
+                    (Array.isArray(requests) && requests.length > 0) ||
+                    (Array.isArray(outgoing) && outgoing.length > 0)
+                );
+            } catch (error) {
+                notificationWrap.classList.remove('has-notifications');
+            }
+        }
+
+        function toggleNotificationMenu() {
+            if (!notificationMenu || !notificationBtn) return;
+            notificationOpen = !notificationOpen;
+            notificationMenu.classList.toggle('open', notificationOpen);
+            notificationMenu.setAttribute('aria-hidden', String(!notificationOpen));
+        }
+
+        function closeNotificationMenu() {
+            if (!notificationMenu) return;
+            notificationOpen = false;
+            notificationMenu.classList.remove('open');
+            notificationMenu.setAttribute('aria-hidden', 'true');
+        }
+
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                await loadNotifications();
+                toggleNotificationMenu();
+                updateNotificationIndicator();
+            });
+        }
+
+        if (notificationMenu) {
+            notificationMenu.addEventListener('click', (event) => {
+                const action = event.target.closest('.notification-item');
+                if (!action) return;
+                closeNotificationMenu();
+                openInboxModal();
+            });
+        }
+
+        document.addEventListener('click', () => {
+            if (notificationOpen) closeNotificationMenu();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeInboxModal();
+                closeOutgoingModal();
+                closeRescindModal();
+            }
+        });
+
+        updateNotificationIndicator();
+    </script>
 
     {% block content %}{% endblock %}
 </body>

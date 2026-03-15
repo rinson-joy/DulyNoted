@@ -27,9 +27,9 @@
                 <div class="inbox-header">
                     <h2>inbox</h2>
                 </div>
-                <div id="shareRequests" class="share-requests">
-                    <p>loading share requests...</p>
-                </div>
+                <button class="share-request-item inbox-open-btn" onclick="openInboxModal()">
+                    open inbox
+                </button>
             </div>
 
             <div id="notesList" class="notes-list">
@@ -57,6 +57,19 @@
             <div class="share-actions">
                 <button class="icon-btn cancel-delete-btn" onclick="closeShareModal()">cancel</button>
                 <button class="icon-btn share-confirm-btn" onclick="confirmShare()">share</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shareEmailModal" class="share-modal" aria-hidden="true">
+        <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="shareEmailTitle">
+            <h2 id="shareEmailTitle">share via email</h2>
+            <p>enter the recipient email.</p>
+            <input id="shareEmailInput" type="email" placeholder="name@example.com" />
+            <span id="shareEmailMessage" class="inline-message"></span>
+            <div class="share-actions">
+                <button class="icon-btn cancel-delete-btn" onclick="closeShareEmailModal()">cancel</button>
+                <button class="icon-btn share-confirm-btn" onclick="confirmShareEmail()">continue</button>
             </div>
         </div>
     </div>
@@ -106,7 +119,9 @@
                                 </svg>
                             </button>
                             <div class="share-select-wrap is-hidden" data-note-id="${note._id}" onclick="event.stopPropagation()">
-                                <div class="share-menu" id="share-menu-${note._id}" role="listbox" aria-label="share with user" onclick="event.stopPropagation()"></div>
+                                <div class="share-menu" id="share-menu-${note._id}" role="listbox" aria-label="share options" onclick="event.stopPropagation()">
+                                    <button class="share-option" type="button" onclick="event.stopPropagation(); openShareEmailModal('${note._id}'); closeShareSelect('${note._id}')">enter email</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -286,28 +301,25 @@
             closeShareRequestModal();
         }
 
+        let _openedNotificationRequest = false;
+
         async function fetchShareRequests() {
             const response = await fetch('/api/notes/requests');
             const requests = await response.json();
-            const shareRequestsDiv = document.getElementById('shareRequests');
             window._shareRequests = requests || [];
 
-            if (!requests.length) {
-                shareRequestsDiv.innerHTML = '<p>no share requests.</p>';
-                return;
+            const shouldOpenFromNotification = !_openedNotificationRequest && new URLSearchParams(window.location.search).get('openShareRequest') === '1';
+            if (shouldOpenFromNotification) {
+                _openedNotificationRequest = true;
+                openShareRequestModalByIndex(0);
+                window.history.replaceState({}, '', window.location.pathname);
             }
+        }
 
-            let html = '';
-            requests.forEach((req, idx) => {
-                html += `
-                    <div class="share-request">
-                        <button class="share-request-item" onclick='openShareRequestModalByIndex(${idx})'>
-                            <span class="shared-badge">${req.owner} shared a note</span>
-                        </button>
-                    </div>
-                `;
-            });
-            shareRequestsDiv.innerHTML = html;
+        async function fetchOutgoingRequests() {
+            const response = await fetch('/api/notes/requests/outgoing');
+            const requests = await response.json();
+            window._outgoingRequests = requests || [];
         }
 
         async function acceptShare(requestId) {
@@ -325,22 +337,36 @@
             }
         }
 
+        let pendingShare = { noteId: null, recipient: '' };
+        let isShareOpen = false;
+        let pendingEmailNoteId = null;
+        let shareEmailMessageTimer = null;
+
+        function showShareEmailMessage(text, type) {
+            const message = document.getElementById('shareEmailMessage');
+            if (!message) return;
+            message.textContent = text;
+            message.className = 'inline-message ' + (type || '');
+            if (shareEmailMessageTimer) clearTimeout(shareEmailMessageTimer);
+            shareEmailMessageTimer = setTimeout(() => {
+                message.textContent = '';
+                message.className = 'inline-message';
+            }, 3000);
+        }
+
         function openShareSelect(noteId) {
             const wrap = document.querySelector(`.share-select-wrap[data-note-id="${noteId}"]`);
             if (!wrap) return;
             wrap.classList.remove('is-hidden');
             wrap.classList.add('is-open');
-            const menu = wrap.querySelector('.share-menu');
-            if (menu) {
-                const first = menu.querySelector('.share-option');
-                if (first) {
-                    setHoveredShareOption(first);
-                }
-            }
         }
 
-        let pendingShare = { noteId: null, recipient: '' };
-        let isShareOpen = false;
+        function closeShareSelect(noteId) {
+            const wrap = document.querySelector(`.share-select-wrap[data-note-id="${noteId}"]`);
+            if (!wrap) return;
+            wrap.classList.remove('is-open');
+            wrap.classList.add('is-hidden');
+        }
 
         function openShareModal(noteId, recipient) {
             pendingShare = { noteId, recipient };
@@ -399,6 +425,54 @@
             isShareOpen = false;
         }
 
+        function openShareEmailModal(noteId) {
+            pendingEmailNoteId = noteId;
+            const modal = document.getElementById('shareEmailModal');
+            const input = document.getElementById('shareEmailInput');
+            const message = document.getElementById('shareEmailMessage');
+            if (!modal) return;
+            if (input) input.value = '';
+            if (message) {
+                message.textContent = '';
+                message.className = 'inline-message';
+            }
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            if (input) input.focus();
+        }
+
+        function closeShareEmailModal() {
+            const modal = document.getElementById('shareEmailModal');
+            if (!modal) return;
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        async function confirmShareEmail() {
+            const input = document.getElementById('shareEmailInput');
+            const message = document.getElementById('shareEmailMessage');
+            const email = (input?.value || '').trim().toLowerCase();
+            if (!email) {
+                showShareEmailMessage('please enter an email.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/lookup?email=${encodeURIComponent(email)}`);
+                const result = await response.json();
+                if (!response.ok) {
+                    showShareEmailMessage(result.message || 'user not found.', 'error');
+                    return;
+                }
+                closeShareEmailModal();
+                if (pendingEmailNoteId) {
+                    openShareModal(pendingEmailNoteId, result.username);
+                }
+            } catch (error) {
+                showShareEmailMessage('an error occurred.', 'error');
+            }
+        }
+
         async function confirmShare() {
             const { noteId, recipient } = pendingShare;
             if (!noteId || !recipient) return;
@@ -407,12 +481,11 @@
         }
 
         async function shareNote(noteId, forcedRecipient) {
-            if (!forcedRecipient) {
-                openShareSelect(noteId);
+            if (forcedRecipient) {
+                openShareModal(noteId, forcedRecipient);
                 return;
             }
-
-            openShareModal(noteId, forcedRecipient);
+            openShareSelect(noteId);
         }
 
         async function performShare(noteId, recipient) {
@@ -437,45 +510,11 @@
             }
         }
 
-        async function fetchUsers() {
-            const response = await fetch('/api/users');
-            const users = await response.json();
-            window._shareUsers = users.map(u => u.username).filter(Boolean);
-        }
-
-        function hydrateShareSelects() {
-            const wraps = document.querySelectorAll('.share-select-wrap');
-            wraps.forEach(wrap => {
-                const menu = wrap.querySelector('.share-menu');
-                if (!menu) return;
-                let items = '';
-                (window._shareUsers || []).forEach(username => {
-                    items += `<button class="share-option" type="button" data-username="${username}" onclick="event.stopPropagation(); shareNote(this.closest('.share-select-wrap').dataset.noteId, this.dataset.username)">${username}</button>`;
-                });
-                menu.innerHTML = items;
-            });
-        }
-
-        function setHoveredShareOption(optionEl) {
-            const menu = optionEl.closest('.share-menu');
-            if (!menu) return;
-            const prev = menu.querySelector('.share-option.is-hovered');
-            if (prev) prev.classList.remove('is-hovered');
-            optionEl.classList.add('is-hovered');
-        }
-
         async function initPage() {
-            await fetchUsers();
             await fetchNotes();
             fetchShareRequests();
-            hydrateShareSelects();
+            fetchOutgoingRequests();
         }
-
-        const _origFetchNotes = fetchNotes;
-        fetchNotes = async () => {
-            await _origFetchNotes();
-            hydrateShareSelects();
-        };
 
         initPage();
 
@@ -511,10 +550,10 @@
             }
         });
 
-        document.addEventListener('mouseover', (e) => {
-            const option = e.target.closest('.share-option');
-            if (!option) return;
-            setHoveredShareOption(option);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeShareEmailModal();
+            }
         });
 
         document.addEventListener('click', (e) => {

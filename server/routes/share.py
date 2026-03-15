@@ -18,8 +18,12 @@ def share_note():
     if recipient == fl.session["user"]:
         return fl.jsonify({"message": "Cannot share to yourself"}), 400
 
-    if not col.find_one({"username": recipient}):
+    recipient_user = col.find_one({"username": recipient})
+    if not recipient_user:
         return fl.jsonify({"message": "Recipient not found"}), 404
+
+    if recipient_user.get("allow_incoming_shares") is False:
+        return fl.jsonify({"message": "Recipient is not accepting shares"}), 403
 
     try:
         note_obj_id = ObjectId(note_id)
@@ -61,6 +65,17 @@ def get_share_requests():
         req["_id"] = str(req["_id"])
     return fl.jsonify(requests)
 
+@share_bp.route('/api/notes/requests/outgoing', methods=['GET'])
+@login_required
+def get_outgoing_share_requests():
+    requests = list(share_col.find({
+        "owner": fl.session["user"],
+        "status": "pending",
+    }))
+    for req in requests:
+        req["_id"] = str(req["_id"])
+    return fl.jsonify(requests)
+
 @share_bp.route('/api/notes/requests/<request_id>/accept', methods=['POST'])
 @login_required
 def accept_share_request(request_id):
@@ -94,7 +109,7 @@ def accept_share_request(request_id):
 
     share_col.update_one(
         {"_id": req_obj_id},
-        {"$set": {"status": "accepted", "responded_at": datetime.utcnow()}}
+        {"$set": {"status": "accepted", "responded_at": datetime.ctime()}}
     )
 
     return fl.jsonify({"message": "Share request accepted"}), 200
@@ -122,6 +137,29 @@ def reject_share_request(request_id):
 
     return fl.jsonify({"message": "Share request rejected"}), 200
 
+@share_bp.route('/api/notes/requests/<request_id>/cancel', methods=['POST'])
+@login_required
+def cancel_share_request(request_id):
+    try:
+        req_obj_id = ObjectId(request_id)
+    except:
+        return fl.jsonify({"message": "Invalid request ID"}), 400
+
+    req = share_col.find_one({
+        "_id": req_obj_id,
+        "owner": fl.session["user"],
+        "status": "pending",
+    })
+    if not req:
+        return fl.jsonify({"message": "Share request not found"}), 404
+
+    share_col.update_one(
+        {"_id": req_obj_id},
+        {"$set": {"status": "cancelled", "responded_at": datetime.utcnow()}}
+    )
+
+    return fl.jsonify({"message": "Share request cancelled"}), 200
+
 @share_bp.route('/api/users', methods=['GET'])
 @login_required
 def list_users():
@@ -132,6 +170,22 @@ def list_users():
         if username and username != fl.session.get("user"):
             result.append({"username": username})
     return fl.jsonify(result)
+
+@share_bp.route('/api/users/lookup', methods=['GET'])
+@login_required
+def lookup_user_by_email():
+    email = (fl.request.args.get('email') or '').strip().lower()
+    if not email:
+        return fl.jsonify({"message": "Missing email"}), 400
+
+    user = col.find_one({"email": email}, {"username": 1, "email": 1})
+    if not user:
+        return fl.jsonify({"message": "User not found"}), 404
+
+    if user.get("username") == fl.session.get("user"):
+        return fl.jsonify({"message": "Cannot share to yourself"}), 400
+
+    return fl.jsonify({"username": user.get("username")}), 200
 
 @share_bp.route('/share/<note_id>', methods=['POST'])
 def share(note_id):

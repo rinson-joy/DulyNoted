@@ -29,7 +29,14 @@ def add_user():
 
     role = "user"
     
-    col.insert_one({"username": username, "password": password, "role": role, "email": email})
+    col.insert_one({
+        "username": username,
+        "password": password,
+        "role": role,
+        "email": email,
+        "allow_incoming_shares": True,
+        "allow_share_notifications": True,
+    })
     return fl.jsonify({
         "message": f"registered successfully as {role}"
     }), 201
@@ -55,17 +62,18 @@ def login():
         return fl.jsonify({"message": "Missing fields"}), 400
         
     user = col.find_one({"username": username, "password": password})
-    if user:
-        fl.session.clear()
-        fl.session["user"] = user["username"]
-        # Stores the role from DB into session.
-        fl.session["role"] = user.get("role", "user")
-        return fl.jsonify({
-            "message": "Login successful",
-            "username": user["username"],
-            "role": fl.session["role"]
-        }), 200
-    
+    if user["password"] == password and user["username"] == username:
+        if user:
+            fl.session.clear()
+            fl.session["user"] = user["username"]
+            # Stores the role from DB into session.
+            fl.session["role"] = user.get("role", "user")
+            return fl.jsonify({
+                "message": "Login successful",
+                "username": user["username"],
+                "role": fl.session["role"]
+            }), 200
+        
     return fl.jsonify({"message": "Invalid credentials"}), 401
 
 
@@ -116,4 +124,79 @@ def delete_user():
 @login_required
 def settings():
     return fl.render_template("settings.html", name="Settings")
+
+@login_bp.route('/api/settings', methods=['GET', 'POST'])
+@login_required
+def user_settings():
+    from monkey import notes_col, share_col
+    if fl.request.method == 'GET':
+        user = col.find_one(
+            {"username": fl.session.get("user")},
+            {"_id": 0, "username": 1, "email": 1, "allow_incoming_shares": 1, "allow_share_notifications": 1},
+        )
+        if not user:
+            return fl.jsonify({"message": "User not found"}), 404
+            
+        return fl.jsonify({
+            "username": user.get("username", ""),
+            "email": user.get("email", ""),
+            "allow_incoming_shares": user.get("allow_incoming_shares", True),
+            "allow_share_notifications": user.get("allow_share_notifications", True),
+        }), 200
+
+    data = fl.request.get_json(silent=True) or {}
+    updates = {}
+    old_username = fl.session.get("user")
+    
+    # Update username
+    if "username" in data:
+        new_username = data.get("username", "").strip()
+        if new_username and new_username != old_username:
+            if col.find_one({"username": new_username}):
+                return fl.jsonify({"message": "Username already exists"}), 400
+            
+            col.update_one({"username": old_username}, {"$set": {"username": new_username}})
+            notes_col.update_many({"owner": old_username}, {"$set": {"owner": new_username}})
+            notes_col.update_many({"shared_from": old_username}, {"$set": {"shared_from": new_username}})
+            share_col.update_many({"owner": old_username}, {"$set": {"owner": new_username}})
+            share_col.update_many({"recipient": old_username}, {"$set": {"recipient": new_username}})
+            
+            fl.session["user"] = new_username
+            updates["username"] = new_username
+
+    # Update email
+    if "email" in data:
+        updates["email"] = data.get("email", "").strip()
+
+    # Update password
+    if "password" in data:
+        password = data.get("password", "").strip()
+        if password:
+            updates["password"] = password
+
+    if "allow_incoming_shares" in data:
+        updates["allow_incoming_shares"] = bool(data.get("allow_incoming_shares"))
+    if "allow_share_notifications" in data:
+        updates["allow_share_notifications"] = bool(data.get("allow_share_notifications"))
+    
+    if updates:
+        col.update_one(
+            {"username": fl.session.get("user")},
+            {"$set": {k: v for k, v in updates.items() if k != "message"}},
+        )
+    
+    if fl.request.method == 'GET':
+        user = col.find_one(
+            {"username": fl.session.get("user")},
+            {"_id": 0, "username": 1, "email": 1, "allow_incoming_shares": 1, "allow_share_notifications": 1},
+        )
+        return fl.jsonify({
+            "username": user.get("username", ""),
+            "email": user.get("email", ""),
+            "allow_incoming_shares": user.get("allow_incoming_shares", True),
+            "allow_share_notifications": user.get("allow_share_notifications", True),
+        }), 200
+
+    updates["message"] = "Settings updated"
+    return fl.jsonify(updates), 200
 

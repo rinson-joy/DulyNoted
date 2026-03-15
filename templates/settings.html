@@ -13,10 +13,14 @@
                     <label for="themeSelectBtn">themes</label>
                     <div class="settings-select-wrap">
                         <button id="themeSelectBtn" class="settings-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                            default
+                            light
                         </button>
                         <div class="share-menu settings-select-menu" id="themeSelectMenu" role="listbox" aria-hidden="true">
-                            <button class="share-option" type="button" data-value="default">default</button>
+                            <button class="share-option light-option" type="button" data-value="light">light</button>
+                            <button class="share-option solarized-light-option" type="button" data-value="solarized-light">solarized light</button>
+                            <button class="share-option paper-option" type="button" data-value="paper">paper</button>
+                            <button class="share-option lilac-mist-option" type="button" data-value="lilac-mist">lilac mist</button>
+                            <button class="share-option darling-option" type="button" data-value="darling">darling</button>
                             <button class="share-option dark-option" type="button" data-value="dark">dark</button>
                             <button class="share-option matrix-option" type="button" data-value="matrix">matrix</button>
                             <button class="share-option phantom-option" type="button" data-value="phantom">phantom</button>
@@ -24,10 +28,6 @@
                             <button class="share-option anti-hero-option" type="button" data-value="anti-hero">anti hero</button>
                         </div>
                     </div>
-                </div>
-                <div class="settings-row">
-                    <label for="settingAutosave">autosave notes</label>
-                    <input id="settingAutosave" type="checkbox" />
                 </div>
             </div>
 
@@ -38,8 +38,8 @@
                     <input id="settingShare" type="checkbox" checked />
                 </div>
                 <div class="settings-row">
-                    <label for="settingEmail">email notifications</label>
-                    <input id="settingEmail" type="checkbox" />
+                    <label for="settingShareNotifications">share notifications</label>
+                    <input id="settingShareNotifications" type="checkbox" checked />
                 </div>
             </div>
 
@@ -50,28 +50,36 @@
                     <input id="settingDisplayName" type="text" placeholder="your name" />
                 </div>
                 <div class="settings-row">
-                    <label for="timezoneSelectBtn">timezone</label>
-                    <div class="settings-select-wrap">
-                        <button id="timezoneSelectBtn" class="settings-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                            use device time
-                        </button>
-                        <div class="share-menu settings-select-menu" id="timezoneSelectMenu" role="listbox" aria-hidden="true">
-                            <button class="share-option" type="button" data-value="local">use device time</button>
-                            <button class="share-option" type="button" data-value="utc">utc</button>
-                        </div>
-                    </div>
+                    <label for="settingEmail">email address</label>
+                    <input id="settingEmail" type="email" placeholder="your@email.com" />
+                </div>
+                <div class="settings-row">
+                    <label for="settingPassword">change password</label>
+                    <input id="settingPassword" type="password" placeholder="new password" />
+                </div>
+            </div>
+
+            <div class="settings-group danger-zone">
+                <h2 style="color: var(--error-color);">danger zone.</h2>
+                <div class="settings-row">
+                    <span>delete your account and all notes</span>
+                    <a href="/delete" class="danger-link">delete account</a>
                 </div>
             </div>
         </div>
 
-        <p class="settings-note">these settings are placeholders for now.</p>
+        <p class="settings-note" id="settingsStatus">settings are saved automatically.</p>
     </div>
 
     <script>
         const themeSelectBtn = document.getElementById('themeSelectBtn');
         const themeSelectMenu = document.getElementById('themeSelectMenu');
-        const timezoneSelectBtn = document.getElementById('timezoneSelectBtn');
-        const timezoneSelectMenu = document.getElementById('timezoneSelectMenu');
+        const settingShare = document.getElementById('settingShare');
+        const settingShareNotifications = document.getElementById('settingShareNotifications');
+        const settingDisplayName = document.getElementById('settingDisplayName');
+        const settingEmail = document.getElementById('settingEmail');
+        const settingPassword = document.getElementById('settingPassword');
+        const settingsStatus = document.getElementById('settingsStatus');
 
         function toggleMenu(button, menu) {
             if (!button || !menu) return;
@@ -91,15 +99,6 @@
             themeSelectBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
                 toggleMenu(themeSelectBtn, themeSelectMenu);
-                closeMenu(timezoneSelectBtn, timezoneSelectMenu);
-            });
-        }
-
-        if (timezoneSelectBtn && timezoneSelectMenu) {
-            timezoneSelectBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                toggleMenu(timezoneSelectBtn, timezoneSelectMenu);
-                closeMenu(themeSelectBtn, themeSelectMenu);
             });
         }
 
@@ -116,18 +115,97 @@
             });
         }
 
-        if (timezoneSelectMenu) {
-            timezoneSelectMenu.querySelectorAll('.share-option').forEach((option) => {
-                option.addEventListener('click', () => {
-                    timezoneSelectBtn.textContent = option.textContent.trim();
-                    closeMenu(timezoneSelectBtn, timezoneSelectMenu);
-                });
-            });
+        if (themeSelectBtn && themeSelectMenu) {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                const match = themeSelectMenu.querySelector(`.share-option[data-value="${savedTheme}"]`);
+                if (match) themeSelectBtn.textContent = match.textContent.trim();
+            }
         }
 
         document.addEventListener('click', () => {
             closeMenu(themeSelectBtn, themeSelectMenu);
-            closeMenu(timezoneSelectBtn, timezoneSelectMenu);
         });
+
+        function showStatus(msg, isError = false) {
+            settingsStatus.textContent = msg;
+            settingsStatus.style.color = isError ? 'var(--error-color)' : 'var(--sub-color)';
+            setTimeout(() => {
+                settingsStatus.textContent = 'settings are saved automatically.';
+                settingsStatus.style.color = 'var(--sub-color)';
+            }, 3000);
+        }
+
+        async function saveSetting(data) {
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) {
+                    const error = await response.json();
+                    showStatus(error.message || 'failed to update settings', true);
+                    return false;
+                }
+                showStatus('settings saved.');
+                return true;
+            } catch (error) {
+                showStatus('connection error', true);
+                return false;
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                if (!response.ok) return;
+                const data = await response.json();
+                if (settingShare) settingShare.checked = data.allow_incoming_shares !== false;
+                if (settingShareNotifications) settingShareNotifications.checked = data.allow_share_notifications !== false;
+                if (settingDisplayName) settingDisplayName.value = data.username || '';
+                if (settingEmail) settingEmail.value = data.email || '';
+            } catch (error) {
+                console.error('Failed to load settings', error);
+            }
+        }
+
+        if (settingDisplayName) {
+            settingDisplayName.addEventListener('blur', async () => {
+                const val = settingDisplayName.value.trim();
+                if (val) await saveSetting({ username: val });
+            });
+        }
+
+        if (settingEmail) {
+            settingEmail.addEventListener('blur', async () => {
+                const val = settingEmail.value.trim();
+                if (val) await saveSetting({ email: val });
+            });
+        }
+
+        if (settingPassword) {
+            settingPassword.addEventListener('blur', async () => {
+                const val = settingPassword.value.trim();
+                if (val) {
+                    const ok = await saveSetting({ password: val });
+                    if (ok) settingPassword.value = '';
+                }
+            });
+        }
+
+        if (settingShare) {
+            settingShare.addEventListener('change', () => {
+                saveSetting({ allow_incoming_shares: settingShare.checked });
+            });
+        }
+
+        if (settingShareNotifications) {
+            settingShareNotifications.addEventListener('change', () => {
+                saveSetting({ allow_share_notifications: settingShareNotifications.checked });
+            });
+        }
+
+        loadSettings();
     </script>
 {% endblock %}
