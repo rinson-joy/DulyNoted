@@ -129,21 +129,6 @@ def settings():
 @login_required
 def user_settings():
     from monkey import notes_col, share_col
-    if fl.request.method == 'GET':
-        user = col.find_one(
-            {"username": fl.session.get("user")},
-            {"_id": 0, "username": 1, "email": 1, "allow_incoming_shares": 1, "allow_share_notifications": 1},
-        )
-        if not user:
-            return fl.jsonify({"message": "User not found"}), 404
-            
-        return fl.jsonify({
-            "username": user.get("username", ""),
-            "email": user.get("email", ""),
-            "allow_incoming_shares": user.get("allow_incoming_shares", True),
-            "allow_share_notifications": user.get("allow_share_notifications", True),
-        }), 200
-
     data = fl.request.get_json(silent=True) or {}
     updates = {}
     old_username = fl.session.get("user")
@@ -179,6 +164,16 @@ def user_settings():
     if "allow_share_notifications" in data:
         updates["allow_share_notifications"] = bool(data.get("allow_share_notifications"))
     
+    # New UI & Workflow Settings
+    if "editor_font_size" in data:
+        updates["editor_font_size"] = data.get("editor_font_size", "medium")
+    if "show_line_numbers" in data:
+        updates["show_line_numbers"] = bool(data.get("show_line_numbers"))
+    if "default_note_title" in data:
+        updates["default_note_title"] = data.get("default_note_title", "untitled").strip()
+    if "sort_order" in data:
+        updates["sort_order"] = data.get("sort_order", "modified")
+    
     if updates:
         col.update_one(
             {"username": fl.session.get("user")},
@@ -188,13 +183,18 @@ def user_settings():
     if fl.request.method == 'GET':
         user = col.find_one(
             {"username": fl.session.get("user")},
-            {"_id": 0, "username": 1, "email": 1, "allow_incoming_shares": 1, "allow_share_notifications": 1},
+            {"_id": 0, "username": 1, "email": 1, "allow_incoming_shares": 1, "allow_share_notifications": 1,
+             "editor_font_size": 1, "show_line_numbers": 1, "default_note_title": 1, "sort_order": 1},
         )
         return fl.jsonify({
             "username": user.get("username", ""),
             "email": user.get("email", ""),
             "allow_incoming_shares": user.get("allow_incoming_shares", True),
             "allow_share_notifications": user.get("allow_share_notifications", True),
+            "editor_font_size": user.get("editor_font_size", "medium"),
+            "show_line_numbers": user.get("show_line_numbers", False),
+            "default_note_title": user.get("default_note_title", "untitled"),
+            "sort_order": user.get("sort_order", "modified"),
         }), 200
 
     updates["message"] = "Settings updated"

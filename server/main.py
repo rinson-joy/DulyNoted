@@ -22,7 +22,13 @@ app.register_blueprint(notes_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(share_bp)
 
-if __name__ == "__main__":
-    context = ('/etc/letsencrypt/live/dulynoted.wbskt.com/fullchain.pem', 
-               '/etc/letsencrypt/live/dulynoted.wbskt.com/privkey.pem')
-    app.run(host='0.0.0.0', port=5000, ssl_context=context)
+s_key = os.getenv("apple")
+
+if s_key == 'apple keeps doc away':
+    if __name__ == "__main__":
+        app.run(debug=True)
+else:
+    if __name__ == "__main__":
+        context = ('/etc/letsencrypt/live/dulynoted.wbskt.com/fullchain.pem', 
+                '/etc/letsencrypt/live/dulynoted.wbskt.com/privkey.pem')
+        app.run(host='0.0.0.0', port=5000, ssl_context=context)

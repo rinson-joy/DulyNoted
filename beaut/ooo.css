@@ -124,7 +124,7 @@ body {
     line-height: 1.6;
     text-align: center;
     transition: background 0.4s, color 0.4s;
-    overflow-y: hidden;
+    overflow: hidden; /* Prevent webpage scrolling */
 }
 
 html {
@@ -154,7 +154,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 3%;
+    padding: 0.5rem 3%;
+    height: 60px; /* Fixed header height */
 }
 
 /* Logo */
@@ -209,15 +210,18 @@ body {
 
 /* Container */
 .container {
-    padding: 10% 2rem;
+    padding: 0 2rem 1rem 2rem;
     text-align: center;
+    height: calc(100vh - 60px);
+    overflow: hidden;
 }
 
 /* Heading */
 h1 {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 300;
     letter-spacing: -1px;
+    margin-bottom: 0.25rem;
 }
 
 /* Theme Button */
@@ -245,6 +249,7 @@ button:hover {
     align-items: center;
     justify-content: center;
     line-height: 0;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 .icon-btn:hover {
@@ -273,6 +278,7 @@ button:hover {
     font-family: 'Roboto Mono', monospace;
     border: none;
     background: transparent;
+    transition: color 0.3s ease;
 }
 
 #addNoteBtn:hover {
@@ -286,6 +292,7 @@ button:hover {
     color: var(--sub-color);
     font-family: 'Roboto Mono', monospace;
     padding: 10px 40px;
+    transition: color 0.3s ease;
 }
 
 .cancel-text:hover {
@@ -296,7 +303,7 @@ button:hover {
 .note-input .cancel-text {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.18s ease;
+    transition: opacity 0.3s ease, color 0.3s ease;
 }
 
 .note-input.is-editing .cancel-text {
@@ -361,7 +368,7 @@ button:hover {
 .icon-btn.cancel-btn {
     border: none;
     padding: 4px;
-    color: var(--sub-color);
+    color: var(--text-color);
 }
 
 .icon-btn.cancel-btn:hover {
@@ -391,18 +398,34 @@ button:hover {
 }
 
 #outgoingModal .reject-btn,
-#rescindModal .reject-btn {
+#rescindModal .reject-btn,
+#clearNotesModal .reject-btn,
+#clearNotesModal .cancel-btn {
     border: none;
     padding: 0;
     background: transparent;
     color: var(--sub-color);
 }
 
+#clearNotesModal .reject-btn {
+    color: var(--error-color);
+}
+
 #outgoingModal .reject-btn:hover,
 #outgoingModal .reject-btn:focus,
 #rescindModal .reject-btn:hover,
-#rescindModal .reject-btn:focus {
-    color: var(--error-color);
+#rescindModal .reject-btn:focus,
+#clearNotesModal .reject-btn:hover,
+#clearNotesModal .reject-btn:focus {
+    color: var(--error-hover-color);
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+#clearNotesModal .cancel-btn:hover,
+#clearNotesModal .cancel-btn:focus {
+    color: var(--main-color);
     border: none;
     outline: none;
     background: transparent;
@@ -412,7 +435,8 @@ button:hover {
     color: var(--text-color);
 }
 
-#inboxModal .cancel-delete-btn:hover {
+#inboxModal .cancel-delete-btn:hover,
+#inboxModal .cancel-btn:hover {
     color: var(--error-color);
 }
 
@@ -705,19 +729,19 @@ select:focus {
 }
 
 .settings-panel {
-    margin-top: 1.5rem;
+    margin-top: 0.25rem;
     border: 1px solid var(--sub-color);
     border-radius: 10px;
-    padding: 1.5rem;
+    padding: 1rem;
     display: grid;
-    gap: 1.5rem;
+    gap: 0.75rem;
     background: rgba(0, 0, 0, 0.02);
 }
 
 .settings-group h2 {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 400;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.4rem;
     letter-spacing: 0.08em;
     color: var(--main-color);
 }
@@ -727,7 +751,7 @@ select:focus {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.4rem;
 }
 
 .settings-row:last-child {
@@ -846,7 +870,7 @@ html.anti-hero body {
 }
 
 html.phantom h1,
-html.phantom h2,
+html.phantom .settings-group:not(.danger-zone) h2,
 html.phantom h3,
 html.phantom .note-item,
 html.phantom .note-title-input,
@@ -854,9 +878,77 @@ html.phantom .note-content,
 html.phantom .share-preview,
 html.phantom .notes-panel,
 html.phantom .notes-sidebar,
-html.phantom .settings-select-menu .share-option {
+html.phantom .settings-select-menu .share-option,
+html.phantom .settings-select-btn,
+html.phantom .data-port-btn,
+html.phantom #addNoteBtn,
+html.phantom .cancel-text,
+html.phantom .save-btn,
+html.phantom .settings-panel input[type="text"],
+html.phantom .settings-panel input[type="email"],
+html.phantom .settings-panel input[type="password"],
+html.phantom .share-panel,
+html.phantom .delete-panel,
+html.phantom #inboxModal .cancel-btn {
     text-shadow: 0 0 18px rgba(122, 162, 247, 1);
     color: #c0caf5;
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.phantom .settings-row label,
+html.phantom .settings-row span,
+html.phantom .settings-note {
+    color: #414868;
+    text-shadow: 0 0 14px rgba(122, 162, 247, 0.4);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.darling .settings-row label,
+html.darling .settings-row span,
+html.darling .settings-note,
+html.darling .settings-panel input[type="text"],
+html.darling .settings-panel input[type="email"],
+html.darling .settings-panel input[type="password"],
+html.darling .data-port-btn,
+html.darling .settings-select-btn {
+    color: #FFFFFF !important;
+}
+
+html.paper .settings-row label,
+html.paper .settings-row span,
+html.paper .settings-note,
+html.paper .settings-panel input[type="text"],
+html.paper .settings-panel input[type="email"],
+html.paper .settings-panel input[type="password"],
+html.paper .data-port-btn,
+html.paper .settings-select-btn {
+    color: #B2B2B2 !important;
+}
+
+html.solarized-light .settings-row label,
+html.solarized-light .settings-row span,
+html.solarized-light .settings-note,
+html.solarized-light .settings-panel input[type="text"],
+html.solarized-light .settings-panel input[type="email"],
+html.solarized-light .settings-panel input[type="password"],
+html.solarized-light .data-port-btn,
+html.solarized-light .settings-select-btn {
+    color: #2AA198 !important;
+}
+
+html.phantom .danger-link,
+html.phantom .danger-link-btn,
+html.phantom .delete-panel .delete-btn {
+    color: var(--error-color) !important;
+    text-shadow: 0 0 18px rgba(122, 162, 247, 0.8);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.phantom .danger-link:hover,
+html.phantom .danger-link-btn:hover,
+html.phantom .delete-panel .delete-btn:hover {
+    color: var(--error-hover-color) !important;
+    text-shadow: 0 0 22px rgba(122, 162, 247, 1);
 }
 
 html.phantom .nav-links a:hover,
@@ -871,6 +963,30 @@ html.phantom svg {
 html.phantom .icon-btn:hover,
 html.phantom .settings-select-btn:hover {
     text-shadow: 0 0 14px rgba(122, 162, 247, 0.8);
+    color: var(--text-color);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.phantom #shareEmailModal .cancel-btn:hover,
+html.phantom #inboxModal .cancel-btn:hover,
+html.phantom .note-input.is-editing .cancel-text:hover {
+    color: var(--error-color) !important;
+    text-shadow: 0 0 14px rgba(122, 162, 247, 0.8);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.phantom .note-input.is-editing #addNoteBtn:hover,
+html.phantom #addNoteBtn:hover {
+    color: var(--main-color) !important;
+    text-shadow: 0 0 14px rgba(122, 162, 247, 0.8);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.phantom .delete-panel .cancel-btn:hover,
+html.phantom .share-panel .cancel-btn:hover {
+    color: var(--main-color) !important;
+    text-shadow: 0 0 14px rgba(122, 162, 247, 0.8);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
 }
 
 html.phantom .icon-btn:hover svg,
@@ -1108,6 +1224,8 @@ html.phantom .settings-select-btn:hover svg {
     min-height: 60vh;
     max-height: calc(100vh - 260px);
     box-sizing: border-box;
+    white-space: pre;
+    overflow-x: auto;
 }
 
 .note-edit {
@@ -1443,10 +1561,6 @@ html.phantom .settings-select-btn:hover svg {
 }
 
 
-.save-btn,
-.cancel-btn {
-    display: none;
-}
 
 .note-actions.is-editing .icon-btn,
 .note-actions.is-editing .share-select-wrap {
@@ -1517,6 +1631,7 @@ html.phantom .settings-select-btn:hover svg {
 .delete-panel .icon-btn,
 .share-panel .icon-btn {
     font-family: 'Roboto Mono', monospace;
+    line-height: 1.6;
 }
 
 .share-modal {
@@ -1571,6 +1686,15 @@ html.phantom .settings-select-btn:hover svg {
 
 .share-panel p {
     color: var(--sub-color);
+}
+
+#deleteAccountUser {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+#deleteAccountPass {
+    width: 100%;
 }
 
 .share-preview {
@@ -1639,4 +1763,140 @@ html.phantom .settings-select-btn:hover svg {
 
 .share-confirm-btn:hover {
     color: var(--text-color);
+}
+
+/* Notes Page Styles */
+.notes-list.grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.note-edit.font-small, #noteContent.font-small, .line-numbers-wrap.font-small { font-size: 0.85rem; }
+.note-edit.font-medium, #noteContent.font-medium, .line-numbers-wrap.font-medium { font-size: 1rem; }
+.note-edit.font-large, #noteContent.font-large, .line-numbers-wrap.font-large { font-size: 1.25rem; }
+
+.line-numbers-wrap {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    width: 100%;
+    border: 1px solid var(--sub-color);
+    border-radius: 6px;
+    background: transparent;
+    overflow-y: auto; /* Internal scrolling for the unified editor */
+    overflow-x: hidden;
+    position: relative;
+    box-sizing: border-box;
+    height: calc(100vh - 280px); /* Strictly fixed height to prevent expansion */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.line-numbers-wrap::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+.line-numbers {
+    grid-column: 1;
+    padding: 0.8rem 0.5rem;
+    text-align: right;
+    color: var(--sub-color);
+    font-size: inherit;
+    user-select: none;
+    border-right: 1px solid var(--sub-color);
+    background: rgba(0,0,0,0.02);
+    min-width: 3.5rem;
+    display: none;
+    font-family: 'Roboto Mono', monospace;
+    line-height: 1.6;
+    margin: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.line-numbers div {
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.show-line-numbers .line-numbers {
+    display: block;
+}
+
+.note-input textarea {
+    grid-column: 2;
+    width: 100%;
+    background: transparent;
+    color: var(--text-color);
+    border: none;
+    padding: 0.8rem;
+    font-family: 'Roboto Mono', monospace;
+    resize: none;
+    height: auto;
+    min-height: 100%;
+    box-sizing: border-box;
+    line-height: 1.6;
+    display: block;
+    outline: none;
+    margin: 0;
+    white-space: pre !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+}
+.note-snippet {
+    font-size: 0.85rem;
+    color: var(--sub-color);
+    margin-top: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.grid-item {
+    padding: 1.5rem;
+    min-height: 160px;
+}
+
+/* Settings Page Styles */
+.settings-group.danger-zone h2 {
+    color: var(--error-color);
+}
+
+.data-port-btn {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: var(--text-color) !important;
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 1rem !important;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.settings-select-wrap.text-wrap {
+    min-width: 0;
+}
+
+.data-port-btn:hover {
+    color: var(--main-color) !important;
+}
+
+.danger-link-btn {
+    border: none !important;
+    background: transparent !important;
+    color: var(--error-color) !important;
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 1rem !important;
+    padding: 0 !important;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.danger-link-btn:hover {
+    color: var(--error-hover-color) !important;
+}
+
+.hidden-file-input {
+    display: none;
 }

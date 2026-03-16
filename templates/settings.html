@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}Settings{% endblock %}
 
 {% block content %}
     <div class="container settings-page">
@@ -26,6 +25,48 @@
                             <button class="share-option phantom-option" type="button" data-value="phantom">phantom</button>
                             <button class="share-option red-dragon-option" type="button" data-value="red-dragon">red dragon</button>
                             <button class="share-option anti-hero-option" type="button" data-value="anti-hero">anti hero</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h2>editor.</h2>
+                <div class="settings-row">
+                    <label for="fontSizeSelectBtn">font size</label>
+                    <div class="settings-select-wrap">
+                        <button id="fontSizeSelectBtn" class="settings-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            medium
+                        </button>
+                        <div class="share-menu settings-select-menu" id="fontSizeSelectMenu" role="listbox" aria-hidden="true">
+                            <button class="share-option" type="button" data-value="small">small</button>
+                            <button class="share-option" type="button" data-value="medium">medium</button>
+                            <button class="share-option" type="button" data-value="large">large</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label for="settingLineNumbers">show line numbers</label>
+                    <input id="settingLineNumbers" type="checkbox" />
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h2>workflow.</h2>
+                <div class="settings-row">
+                    <label for="settingDefaultTitle">default note title</label>
+                    <input id="settingDefaultTitle" type="text" placeholder="untitled" />
+                </div>
+                <div class="settings-row">
+                    <label for="sortSelectBtn">sort by</label>
+                    <div class="settings-select-wrap">
+                        <button id="sortSelectBtn" class="settings-select-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            last modified
+                        </button>
+                        <div class="share-menu settings-select-menu" id="sortSelectMenu" role="listbox" aria-hidden="true">
+                            <button class="share-option" type="button" data-value="modified">last modified</button>
+                            <button class="share-option" type="button" data-value="created">date created</button>
+                            <button class="share-option" type="button" data-value="alpha">alphabetical</button>
                         </div>
                     </div>
                 </div>
@@ -59,11 +100,45 @@
                 </div>
             </div>
 
-            <div class="settings-group danger-zone">
-                <h2 style="color: var(--error-color);">danger zone.</h2>
+            <div class="settings-group">
+                <h2>data portability.</h2>
                 <div class="settings-row">
-                    <span>delete your account and all notes</span>
-                    <a href="/delete" class="danger-link">delete account</a>
+                    <span>export</span>
+                    <div class="settings-select-wrap text-wrap">
+                        <button id="exportSelectBtn" class="data-port-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            all notes
+                        </button>
+                        <div class="share-menu settings-select-menu" id="exportSelectMenu" role="listbox" aria-hidden="true">
+                            <button class="share-option" type="button" data-value="json">.json</button>
+                            <button class="share-option" type="button" data-value="txt">.txt</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <span>import</span>
+                    <div class="settings-select-wrap text-wrap">
+                        <button id="importSelectBtn" class="data-port-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                            from file
+                        </button>
+                        <div class="share-menu settings-select-menu" id="importSelectMenu" role="listbox" aria-hidden="true">
+                            <button class="share-option" type="button" data-value="json">.json</button>
+                            <button class="share-option" type="button" data-value="txt">.txt</button>
+                        </div>
+                    </div>
+                    <input type="file" id="importFileJson" class="hidden-file-input" onchange="importNotes(this, 'json')" accept=".json" />
+                    <input type="file" id="importFileTxt" class="hidden-file-input" onchange="importNotes(this, 'txt')" accept=".txt" />
+                </div>
+            </div>
+
+            <div class="settings-group danger-zone">
+                <h2>danger zone.</h2>
+                <div class="settings-row">
+                     <span>delete your account and all notes</span>
+                    <button class="danger-link-btn" onclick="openDeleteAccountModal()">delete account</button>
+                </div>
+                <div class="settings-row">
+                   <span>delete all your notes</span>
+                    <button class="danger-link-btn" onclick="openClearModal()">delete notes</button>
                 </div>
             </div>
         </div>
@@ -71,14 +146,54 @@
         <p class="settings-note" id="settingsStatus">settings are saved automatically.</p>
     </div>
 
+    <div id="deleteAccountModal" class="delete-modal" aria-hidden="true">
+        <div class="delete-panel" role="dialog" aria-modal="true" aria-labelledby="deleteAccountTitle">
+            <h2 id="deleteAccountTitle">delete account?</h2>
+            <p>this action will permanently remove your account and all notes. it cannot be undone.</p>
+            <div class="settings-row">
+                <input id="deleteAccountUser" type="text" placeholder="username" />
+            </div>
+            <div class="settings-row">
+                <input id="deleteAccountPass" type="password" placeholder="password" />
+            </div>
+            <div class="delete-actions">
+                <button class="icon-btn cancel-btn" onclick="closeDeleteAccountModal()">cancel</button>
+                <button class="icon-btn delete-btn" onclick="confirmDeleteAccount()">delete account</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="clearNotesModal" class="delete-modal" aria-hidden="true">
+        <div class="delete-panel" role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+            <h2 id="clearTitle">delete all notes?</h2>
+            <p>this action will permanently remove all your notes. it cannot be undone.</p>
+            <div class="delete-actions">
+                <button class="icon-btn cancel-btn" onclick="closeClearModal()">cancel</button>
+                <button class="icon-btn delete-btn" onclick="confirmClearNotes()">delete all</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const themeSelectBtn = document.getElementById('themeSelectBtn');
         const themeSelectMenu = document.getElementById('themeSelectMenu');
+        const fontSizeSelectBtn = document.getElementById('fontSizeSelectBtn');
+        const fontSizeSelectMenu = document.getElementById('fontSizeSelectMenu');
+        const sortSelectBtn = document.getElementById('sortSelectBtn');
+        const sortSelectMenu = document.getElementById('sortSelectMenu');
+        
+        const exportSelectBtn = document.getElementById('exportSelectBtn');
+        const exportSelectMenu = document.getElementById('exportSelectMenu');
+        const importSelectBtn = document.getElementById('importSelectBtn');
+        const importSelectMenu = document.getElementById('importSelectMenu');
+        
         const settingShare = document.getElementById('settingShare');
         const settingShareNotifications = document.getElementById('settingShareNotifications');
+        const settingLineNumbers = document.getElementById('settingLineNumbers');
         const settingDisplayName = document.getElementById('settingDisplayName');
         const settingEmail = document.getElementById('settingEmail');
         const settingPassword = document.getElementById('settingPassword');
+        const settingDefaultTitle = document.getElementById('settingDefaultTitle');
         const settingsStatus = document.getElementById('settingsStatus');
 
         function toggleMenu(button, menu) {
@@ -95,36 +210,52 @@
             button.setAttribute('aria-expanded', 'false');
         }
 
-        if (themeSelectBtn && themeSelectMenu) {
-            themeSelectBtn.addEventListener('click', (event) => {
+        function setupDropdown(button, menu, onSelect) {
+            if (!button || !menu) return;
+            button.addEventListener('click', (event) => {
                 event.stopPropagation();
-                toggleMenu(themeSelectBtn, themeSelectMenu);
+                const menus = [themeSelectMenu, fontSizeSelectMenu, sortSelectMenu];
+                const buttons = [themeSelectBtn, fontSizeSelectBtn, sortSelectBtn];
+                menus.forEach((m, i) => { if (m !== menu) closeMenu(buttons[i], m); });
+                toggleMenu(button, menu);
             });
-        }
 
-        if (themeSelectMenu) {
-            themeSelectMenu.querySelectorAll('.share-option').forEach((option) => {
+            menu.querySelectorAll('.share-option').forEach((option) => {
                 option.addEventListener('click', () => {
                     const value = option.getAttribute('data-value');
-                    if (value) {
-                        themeSelectBtn.textContent = option.textContent.trim();
-                        setTheme(value);
-                    }
-                    closeMenu(themeSelectBtn, themeSelectMenu);
+                    button.textContent = option.textContent.trim();
+                    onSelect(value);
+                    closeMenu(button, menu);
                 });
             });
         }
 
-        if (themeSelectBtn && themeSelectMenu) {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                const match = themeSelectMenu.querySelector(`.share-option[data-value="${savedTheme}"]`);
-                if (match) themeSelectBtn.textContent = match.textContent.trim();
-            }
-        }
+        setupDropdown(themeSelectBtn, themeSelectMenu, (val) => setTheme(val));
+        setupDropdown(fontSizeSelectBtn, fontSizeSelectMenu, (val) => saveSetting({ editor_font_size: val }));
+        setupDropdown(sortSelectBtn, sortSelectMenu, (val) => saveSetting({ sort_order: val }));
+        
+        setupDropdown(exportSelectBtn, exportSelectMenu, (val) => {
+            exportNotes(val);
+            exportSelectBtn.textContent = 'all notes'; // Reset label
+        });
+        
+        setupDropdown(importSelectBtn, importSelectMenu, (val) => {
+            if (val === 'json') document.getElementById('importFileJson').click();
+            else if (val === 'txt') document.getElementById('importFileTxt').click();
+            importSelectBtn.textContent = 'from file'; // Reset label
+        });
 
-        document.addEventListener('click', () => {
+        document.addEventListener('click', (event) => {
             closeMenu(themeSelectBtn, themeSelectMenu);
+            closeMenu(fontSizeSelectBtn, fontSizeSelectMenu);
+            closeMenu(sortSelectBtn, sortSelectMenu);
+            closeMenu(exportSelectBtn, exportSelectMenu);
+            closeMenu(importSelectBtn, importSelectMenu);
+
+            const clearModal = document.getElementById('clearNotesModal');
+            const deleteModal = document.getElementById('deleteAccountModal');
+            if (event.target === clearModal) closeClearModal();
+            if (event.target === deleteModal) closeDeleteAccountModal();
         });
 
         function showStatus(msg, isError = false) {
@@ -163,48 +294,141 @@
                 const data = await response.json();
                 if (settingShare) settingShare.checked = data.allow_incoming_shares !== false;
                 if (settingShareNotifications) settingShareNotifications.checked = data.allow_share_notifications !== false;
+                if (settingLineNumbers) settingLineNumbers.checked = data.show_line_numbers === true;
                 if (settingDisplayName) settingDisplayName.value = data.username || '';
                 if (settingEmail) settingEmail.value = data.email || '';
+                if (settingDefaultTitle) settingDefaultTitle.value = data.default_note_title || '';
+                
+                // Update dropdown labels
+                if (data.editor_font_size) fontSizeSelectBtn.textContent = data.editor_font_size;
+                if (data.sort_order) {
+                    const sortMap = { 'modified': 'last modified', 'created': 'date created', 'alpha': 'alphabetical' };
+                    sortSelectBtn.textContent = sortMap[data.sort_order] || data.sort_order;
+                }
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                const themeMatch = themeSelectMenu.querySelector(`.share-option[data-value="${savedTheme}"]`);
+                if (themeMatch) themeSelectBtn.textContent = themeMatch.textContent.trim();
+
             } catch (error) {
                 console.error('Failed to load settings', error);
             }
         }
 
-        if (settingDisplayName) {
-            settingDisplayName.addEventListener('blur', async () => {
-                const val = settingDisplayName.value.trim();
-                if (val) await saveSetting({ username: val });
-            });
+        function exportNotes(format) {
+            window.location.href = `/api/notes/export?format=${format}`;
         }
 
-        if (settingEmail) {
-            settingEmail.addEventListener('blur', async () => {
-                const val = settingEmail.value.trim();
-                if (val) await saveSetting({ email: val });
-            });
+        async function importNotes(input, format) {
+            if (!input.files || !input.files[0]) return;
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('format', format);
+            
+            showStatus('importing...');
+            try {
+                const response = await fetch('/api/notes/import', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                showStatus(result.message, !response.ok);
+                input.value = ''; // Reset input
+            } catch (error) {
+                showStatus('import failed', true);
+            }
         }
 
-        if (settingPassword) {
-            settingPassword.addEventListener('blur', async () => {
-                const val = settingPassword.value.trim();
-                if (val) {
-                    const ok = await saveSetting({ password: val });
-                    if (ok) settingPassword.value = '';
+        async function confirmClearNotes() {
+            try {
+                const response = await fetch('/api/notes/clear', { method: 'POST' });
+                const result = await response.json();
+                showStatus(result.message, !response.ok);
+                closeClearModal();
+            } catch (error) {
+                showStatus('failed to clear notes', true);
+            }
+        }
+
+        function openClearModal() {
+            const modal = document.getElementById('clearNotesModal');
+            if (modal) {
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+            }
+        }
+
+        function closeClearModal() {
+            const modal = document.getElementById('clearNotesModal');
+            if (modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        function openDeleteAccountModal() {
+            const modal = document.getElementById('deleteAccountModal');
+            if (modal) {
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden', 'false');
+                document.getElementById('deleteAccountUser').value = '';
+                document.getElementById('deleteAccountPass').value = '';
+            }
+        }
+
+        function closeDeleteAccountModal() {
+            const modal = document.getElementById('deleteAccountModal');
+            if (modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        async function confirmDeleteAccount() {
+            const username = document.getElementById('deleteAccountUser').value.trim();
+            const password = document.getElementById('deleteAccountPass').value.trim();
+            
+            if (!username || !password) {
+                showStatus('please enter both username and password', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    showStatus(result.message || 'failed to delete account', true);
                 }
-            });
+            } catch (error) {
+                showStatus('connection error', true);
+            }
         }
 
-        if (settingShare) {
-            settingShare.addEventListener('change', () => {
-                saveSetting({ allow_incoming_shares: settingShare.checked });
+        [settingDisplayName, settingEmail, settingDefaultTitle].forEach(el => {
+            el.addEventListener('blur', () => {
+                const key = el.id === 'settingDisplayName' ? 'username' : (el.id === 'settingEmail' ? 'email' : 'default_note_title');
+                saveSetting({ [key]: el.value.trim() });
             });
-        }
+        });
 
-        if (settingShareNotifications) {
-            settingShareNotifications.addEventListener('change', () => {
-                saveSetting({ allow_share_notifications: settingShareNotifications.checked });
+        settingPassword.addEventListener('blur', async () => {
+            if (settingPassword.value.trim()) {
+                const ok = await saveSetting({ password: settingPassword.value.trim() });
+                if (ok) settingPassword.value = '';
+            }
+        });
+
+        [settingShare, settingShareNotifications, settingLineNumbers].forEach(el => {
+            el.addEventListener('change', () => {
+                const key = el.id === 'settingShare' ? 'allow_incoming_shares' : (el.id === 'settingShareNotifications' ? 'allow_share_notifications' : 'show_line_numbers');
+                saveSetting({ [key]: el.checked });
             });
-        }
+        });
 
         loadSettings();
     </script>
