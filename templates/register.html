@@ -1,25 +1,36 @@
 {% extends "base.html" %}
 
-
 {% block content %}
     <div class="container">
-        <h1>{{ name }}</h1>
+        <div class="auth-card">
+            <h1>{{ name }}</h1>
 
-        <form id="registerForm">
-            <label>Username</label>
-            <input type="text" id="userInput" placeholder="username" required>
+            <form id="registerForm">
+                <div class="settings-group">
+                    <label for="userInput">username</label>
+                    <input type="text" id="userInput" placeholder="username" required>
+                </div>
 
-            <label>Email</label>
-            <input type="email" id="emailInput" placeholder="email" required>
+                <div class="settings-group">
+                    <label for="pwInput">password</label>
+                    <input type="password" id="pwInput" placeholder="password" required>
+                </div>
 
-            <label>Password</label>
-            <input type="password" id="pwInput" placeholder="password" required>
+                <div class="settings-group">
+                    <label for="emailInput">email</label>
+                    <input type="email" id="emailInput" placeholder="email" required>
+                </div>
 
-            <button type="submit">submit</button>
-        </form>
+                <button type="submit">register</button>
+            </form>
 
-        <div id="response" class="response-container">
-            <span id="message"></span>
+            <div class="auth-footer">
+                already have an account? <a href="/login">login</a>
+            </div>
+
+            <div id="response" class="response-container">
+                <span id="message"></span>
+            </div>
         </div>
     </div>
 
@@ -43,7 +54,6 @@
                 messageSpan.textContent = result.message;
                 if (response.ok) {
                     responseDiv.className = 'response-container success';
-                    // Redirect to login after 1 second
                     setTimeout(() => {
                         window.location.href = '/login';
                     }, 1000);

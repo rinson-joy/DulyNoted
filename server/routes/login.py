@@ -67,7 +67,7 @@ def login():
             fl.session["role"] = "master"
         
         return fl.jsonify({
-            "message": "Login successful",
+            "message": "login successful",
             "username": user["username"],
             "role": fl.session.get("role")
         }), 200
@@ -158,7 +158,7 @@ def user_settings():
     if "allow_share_notifications" in data:
         updates["allow_share_notifications"] = bool(data.get("allow_share_notifications"))
     
-    # New UI & Workflow Settings
+    # UI & Workflow Settings
     if "editor_font_size" in data:
         updates["editor_font_size"] = data.get("editor_font_size", "medium")
     if "show_line_numbers" in data:
