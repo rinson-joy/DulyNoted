@@ -71,4 +71,3 @@ A `deploy.sh` script is available for production updates. It pulls from the `mai
 ## Roadmap & Notes
 - **Future Migration:** A migration to React for the frontend is planned.
 - **Data Portability:** Supports exporting notes in JSON and TXT formats and importing from the same.
-- **Keystroke Diary:** A planned feature for recording and replaying note creation "keystrokes."

@@ -229,6 +229,38 @@ h1 {
     margin-bottom: 0.25rem;
 }
 
+.side-toggle {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#recordLogBtn.recording {
+    background-color: var(--error-color);
+    color: white;
+    animation: pulse-recording 1.5s infinite;
+}
+
+@keyframes pulse-recording {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.diary-logs-section {
+    margin-top: 2rem;
+}
+
+.sidebar-divider {
+    font-size: 0.75rem;
+    color: var(--sub-color);
+    margin: 1.5rem 0.5rem 0.5rem;
+    text-transform: lowercase;
+    border-bottom: 1px solid var(--sub-color);
+    opacity: 0.5;
+    padding-bottom: 0.25rem;
+}
+
+
 @media (max-width: 600px) {
     h1 {
         font-size: 1.4rem;
@@ -424,7 +456,8 @@ button:focus {
 #outgoingModal .reject-btn,
 #rescindModal .reject-btn,
 #clearNotesModal .reject-btn,
-#clearNotesModal .cancel-btn {
+#clearNotesModal .cancel-btn,
+#deleteAccountModal .cancel-btn {
     border: none;
     padding: 0;
     background: transparent;

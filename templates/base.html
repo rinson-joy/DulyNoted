@@ -69,7 +69,7 @@
 <body>
     <nav class="top-nav">
         <div class="logo">
-            {% if request.path == '/notes' %}
+            {% if request.path == '/notes' or request.path == '/diary' %}
             <button class="icon-btn menu-btn" id="notesMenuBtn" aria-label="toggle notes menu">
                 <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -78,16 +78,17 @@
                 </svg>
             </button>
             {% endif %}
-            <a href="/home" class="icon" aria-label="home">
+            {% set home_url = '/dulytold' if side == 'dulytold' else '/home' %}
+            <a href="{{ home_url }}" class="icon" aria-label="home">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 10l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 </svg>
             </a>
-            <a href="/home" class="home-logo">DulyNoted.</a>
+            <a href="{{ home_url }}" class="home-logo">{% if side == 'dulytold' %}DulyTold.{% else %}DulyNoted.{% endif %}</a>
         </div>
 
         <div class="nav-links">
-            <a href="/home">home</a>
+            <a href="{{ home_url }}">home</a>
             {% if not session.user %}
             <a href="/register">register</a>
             {% endif %}
@@ -96,18 +97,30 @@
             {% else %}
             <a href="/login">login</a>
             {% endif %}
-            {% if session.user and request.path != '/notes' %}
-            <a href="/notes">notes</a>
+            {% if session.user %}
+                {% if side == 'dulytold' %}
+                    {% if request.path != '/diary' %}
+                    <a href="/diary">diary</a>
+                    {% endif %}
+                {% else %}
+                    {% if request.path != '/notes' %}
+                    <a href="/notes">notes</a>
+                    {% endif %}
+                {% endif %}
             {% endif %}
             {% if session.role == 'master' %}
                 {% if request.path == '/admin' %}
-                <a href="/notes" class="accent">notes</a>
+                    {% if side == 'dulytold' %}
+                    <a href="/diary" class="accent">diary</a>
+                    {% else %}
+                    <a href="/notes" class="accent">notes</a>
+                    {% endif %}
                 {% else %}
                 <a href="/admin" class="accent">admin panel</a>
                 {% endif %}
             {% endif %}
             <div class="theme-toggle">
-                <a class="settings-badge" id="settingsLink" href="/settings" aria-label="Open settings">
+                <a class="settings-badge" id="settingsLink" href="{% if side == 'dulytold' %}/dulytold/settings{% else %}/settings{% endif %}" aria-label="Open settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
                         <g id="Interface / Settings_Future">
                             <g id="Vector">

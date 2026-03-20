@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="container settings-page">
-        <h1>settings</h1>
+        <h1>{% if side == 'dulytold' %}diary {% endif %}settings</h1>
 
         <div class="settings-panel">
             <div class="settings-group">
@@ -54,7 +54,7 @@
             <div class="settings-group">
                 <h2>workflow.</h2>
                 <div class="settings-row">
-                    <label for="settingDefaultTitle">default note title</label>
+                    <label for="settingDefaultTitle">default {% if side == 'dulytold' %}diary{% else %}note{% endif %} title</label>
                     <input id="settingDefaultTitle" type="text" placeholder="untitled" />
                 </div>
                 <div class="settings-row">
@@ -106,7 +106,7 @@
                     <span>export</span>
                     <div class="settings-select-wrap text-wrap">
                         <button id="exportSelectBtn" class="data-port-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                            all notes
+                            all {% if side == 'dulytold' %}diaries{% else %}notes{% endif %}
                         </button>
                         <div class="share-menu settings-select-menu" id="exportSelectMenu" role="listbox" aria-hidden="true">
                             <button class="share-option" type="button" data-value="json">.json</button>
@@ -133,12 +133,12 @@
             <div class="settings-group danger-zone">
                 <h2>danger zone.</h2>
                 <div class="settings-row">
-                     <span>delete your account and all notes</span>
+                     <span>delete your account and all notes/diaries</span>
                     <button class="danger-link-btn" onclick="openDeleteAccountModal()">delete account</button>
                 </div>
                 <div class="settings-row">
-                   <span>delete all your notes</span>
-                    <button class="danger-link-btn" onclick="openClearModal()">delete notes</button>
+                   <span>delete all your {% if side == 'dulytold' %}diaries{% else %}notes{% endif %}</span>
+                    <button class="danger-link-btn" onclick="openClearModal()">delete {% if side == 'dulytold' %}diaries{% else %}notes{% endif %}</button>
                 </div>
             </div>
         </div>
@@ -149,7 +149,7 @@
     <div id="deleteAccountModal" class="delete-modal" aria-hidden="true">
         <div class="delete-panel" role="dialog" aria-modal="true" aria-labelledby="deleteAccountTitle">
             <h2 id="deleteAccountTitle">delete account?</h2>
-            <p>this action will permanently remove your account and all notes. it cannot be undone.</p>
+            <p>this action will permanently remove your account and all notes/diaries. it cannot be undone.</p>
             <div class="settings-row">
                 <input id="deleteAccountUser" type="text" placeholder="username" />
             </div>
@@ -165,8 +165,8 @@
 
     <div id="clearNotesModal" class="delete-modal" aria-hidden="true">
         <div class="delete-panel" role="dialog" aria-modal="true" aria-labelledby="clearTitle">
-            <h2 id="clearTitle">delete all notes?</h2>
-            <p>this action will permanently remove all your notes. it cannot be undone.</p>
+            <h2 id="clearTitle">delete all {% if side == 'dulytold' %}diaries{% else %}notes{% endif %}?</h2>
+            <p>this action will permanently remove all your {% if side == 'dulytold' %}diaries{% else %}notes{% endif %}. it cannot be undone.</p>
             <div class="delete-actions">
                 <button class="icon-btn cancel-btn" onclick="closeClearModal()">cancel</button>
                 <button class="icon-btn delete-btn" onclick="confirmClearNotes()">delete all</button>
@@ -434,8 +434,8 @@
 
         // Handle clicking outside the settings panel to return back
         document.addEventListener('click', (event) => {
-            // Only execute if we are on the settings page
-            if (window.location.pathname !== '/settings') return;
+            const isSettingsPage = window.location.pathname === '/settings' || window.location.pathname === '/dulytold/settings';
+            if (!isSettingsPage) return;
 
             const panel = document.querySelector('.settings-panel');
             const h1 = document.querySelector('h1');
@@ -447,16 +447,17 @@
             if (h1 && h1.contains(event.target)) return;
             if (nav && nav.contains(event.target)) return;
             
-            // Do not go back if a modal is open and we are clicking inside it
+            // Do not go back if clicking inside any modal panel (even if not currently 'open' class)
             let insideModal = false;
             modals.forEach(modal => {
-                if (modal.classList.contains('open') && modal.contains(event.target)) {
+                const modalPanel = modal.querySelector('.delete-panel, .share-panel');
+                if (modalPanel && modalPanel.contains(event.target)) {
                     insideModal = true;
                 }
             });
             if (insideModal) return;
 
-            // Otherwise, if we clicked "outside", go back
+            // Otherwise, if we clicked "outside" (the background), go back
             window.history.back();
         });
     </script>

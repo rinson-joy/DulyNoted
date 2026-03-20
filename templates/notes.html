@@ -5,18 +5,22 @@
     <div class="container wide notes-layout">
         <div class="notes-main">
             <div class="notes-title-row">
-                <input id="noteTitle" class="note-title-input" type="text" placeholder="my notes." />
+                <input id="noteTitle" class="note-title-input" type="text" placeholder="{% if side == 'dulytold' %}my diary.{% else %}my notes.{% endif %}" />
             </div>
 
             <div class="note-input" id="noteInput">
                 <div class="line-numbers-wrap">
                     <div class="line-numbers" id="lineNumbers">1</div>
-                    <div id="noteContent" class="note-input-editor" contenteditable="true" placeholder="write your note here..." oninput="updateLineNumbers()"></div>
+                    <div id="noteContent" class="note-input-editor" contenteditable="true" placeholder="{% if side == 'dulytold' %}write your diary here...{% else %}write your note here...{% endif %}" oninput="updateLineNumbers()"></div>
                 </div>
                 <div class="note-input-actions">
                     <div class="note-input-buttons">
-                        <button id="addNoteBtn">add note</button>
-                        <button id="cancelEditBtn" class="cancel-text" onclick="cancelEdit()">cancel</button>
+                        <button id="addNoteBtn" title="{% if side == 'dulytold' %}save your diary entry{% else %}save your note{% endif %}">{% if side == 'dulytold' %}save diary{% else %}add note{% endif %}</button>
+                        <button id="cancelEditBtn" class="cancel-text" onclick="cancelEdit()" title="cancel editing">cancel</button>
+                        {% if side == 'dulytold' %}
+                        <button id="recordLogBtn" onclick="toggleRecording()" title="start recording keystrokes">start recording</button>
+                        <button id="viewLogsBtn" onclick="scrollToLogs()" title="view your diary logs">view logs</button>
+                        {% endif %}
                     </div>
                     <span id="messageInline" class="inline-message"></span>
                     <div class="rich-toolbar">
@@ -91,7 +95,7 @@
             </div>
 
             <div id="notesList" class="notes-list">
-                <p>loading notes...</p>
+                <p>{% if side == 'dulytold' %}loading diary entries...{% else %}loading notes...{% endif %}</p>
             </div>
         </aside>
     </div>
@@ -173,7 +177,6 @@
         function toggleFormatMenu(event) {
             event.stopPropagation();
             const menu = document.getElementById('formatMenu');
-            // Close all other open menus first if any
             document.querySelectorAll('.settings-select-menu.open').forEach(m => {
                 if (m !== menu) m.classList.remove('open');
             });
@@ -213,7 +216,6 @@
                 }
             });
 
-            // Format Block check
             const formatBtn = document.getElementById('formatBtn');
             if (formatBtn) {
                 const block = document.queryCommandValue('formatBlock').toLowerCase();
@@ -232,7 +234,6 @@
             const editorWrap = document.querySelector('.line-numbers-wrap');
             
             list.classList.remove('grid-view');
-
             const fontSizeClass = `font-${userSettings.editor_font_size || 'medium'}`;
             
             if (editor) {
@@ -293,17 +294,12 @@
             const editor = document.getElementById('noteContent');
             const lineNumbers = document.getElementById('lineNumbers');
             if (!editor || !lineNumbers) return;
-
-            // Sync gutter height to scrollHeight
             lineNumbers.style.height = editor.scrollHeight + 'px';
 
             if (userSettings.show_line_numbers) {
                 let text = editor.innerText || '';
-                // Handle trailing newline common in contenteditable
                 if (text.endsWith('\n')) text = text.slice(0, -1);
-                
                 const lines = text.split('\n').length || 1;
-                
                 let html = '';
                 for (let i = 1; i <= lines; i++) {
                     html += `<div>${i}</div>`;
@@ -316,13 +312,14 @@
             const response = await fetch('/api/notes');
             let notes = await response.json();
             const notesListDiv = document.getElementById('notesList');
+            const isDiarySide = '{{ side }}' === 'dulytold';
             
             if (!Array.isArray(notes) || notes.length === 0) {
-                notesListDiv.innerHTML = '<p>no notes found. add your first note!</p>';
+                notesListDiv.innerHTML = `<p>no ${isDiarySide ? 'diary entries' : 'notes'} found. add your first ${isDiarySide ? 'diary' : 'note'}!</p>`;
                 return;
             }
 
-            // Apply sorting
+            // Apply sorting to notes
             if (userSettings.sort_order === 'alpha') {
                 notes.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
             } else if (userSettings.sort_order === 'created') {
@@ -332,38 +329,41 @@
             }
 
             let html = '';
+            
+            // Render Notes/Diary Entries
             notes.forEach(note => {
+                const hasRecording = !!note.events;
                 const sharedBadge = note.shared_from ? `<span class="shared-badge">shared by ${note.shared_from}</span>` : '';
-                
-                // Strip HTML for clean preview
                 const plainText = (note.content || '').replace(/<[^>]*>/g, ' ');
                 const titleText = note.title || plainText.split('\n')[0].substring(0, 30).trim() || userSettings.default_note_title || 'untitled';
                 
                 const escapedContent = (note.content || '').replace(/"/g, '&quot;');
                 const escapedTitle = (note.title || '').replace(/"/g, '&quot;');
+                const escapedEvents = hasRecording ? JSON.stringify(note.events).replace(/"/g, '&quot;') : '';
                 
                 html += `
-                    <div class="note-item" 
+                    <div class="note-item entry-item" 
                          id="note-item-${note._id}" 
                          data-title="${escapedTitle}" 
                          data-content="${escapedContent}"
+                         ${hasRecording ? `data-events="${escapedEvents}"` : ''}
                          onclick="startEdit('${note._id}')">
                         <div class="note-content">
                             ${sharedBadge}
                             <p class="note-title-preview">${titleText}</p>
                         </div>
                         <div class="note-actions">
-                            <button onclick="event.stopPropagation(); activeNoteId='${note._id}'; openDeleteModal(activeNoteId)" class="icon-btn delete-btn" title="delete note">
+                            <button onclick="event.stopPropagation(); activeNoteId='${note._id}'; openDeleteModal(activeNoteId)" class="icon-btn delete-btn" title="delete ${isDiarySide ? 'diary' : 'note'}">
                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
                             </button>
-                            <button class="icon-btn share-btn" onclick="event.stopPropagation(); shareNote('${note._id}')" title="share note">
+                            <button class="icon-btn share-btn" onclick="event.stopPropagation(); shareNote('${note._id}')" title="share ${isDiarySide ? 'diary' : 'note'}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M4 12v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6" />
                                   <polyline points="16 6 12 2 8 6" />
                                   <line x1="12" y1="2" x2="12" y2="15" />
                                 </svg>
                             </button>
-                            <button class="icon-btn share-btn" onclick="event.stopPropagation(); openDownloadModal('${note._id}')" title="download note">
+                            <button class="icon-btn share-btn" onclick="event.stopPropagation(); openDownloadModal('${note._id}')" title="download ${isDiarySide ? 'diary' : 'note'}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M4 12v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6" />
                                   <polyline points="8 11 12 15 16 11" />
@@ -397,6 +397,10 @@
             }, 3000);
         }
 
+        let isRecording = false;
+        let recordingStartTime = 0;
+        let recordingEvents = [];
+
         function startEdit(noteId) {
             const item = document.getElementById(`note-item-${noteId}`);
             if (!item) return;
@@ -404,9 +408,20 @@
             const titleInput = document.getElementById('noteTitle');
             const addBtn = document.getElementById('addNoteBtn');
             const form = document.getElementById('noteInput');
+            const isDiarySide = '{{ side }}' === 'dulytold';
             currentEditId = noteId;
             input.innerHTML = item.dataset.content || '';
             if (titleInput) titleInput.value = item.dataset.title || '';
+            
+            // Set current recording events if they exist
+            if (item.dataset.events) {
+                try {
+                    recordingEvents = JSON.parse(item.dataset.events);
+                } catch(e) { recordingEvents = []; }
+            } else {
+                recordingEvents = [];
+            }
+
             input.focus();
             updateLineNumbers();
             updateToolbarStates();
@@ -428,10 +443,18 @@
             const titleInput = document.getElementById('noteTitle');
             const addBtn = document.getElementById('addNoteBtn');
             const form = document.getElementById('noteInput');
+            const isDiarySide = '{{ side }}' === 'dulytold';
             currentEditId = null;
+            recordingEvents = []; // Reset events on cancel
+            isRecording = false;
+            const recBtn = document.getElementById('recordLogBtn');
+            if (recBtn) {
+                recBtn.textContent = 'start recording';
+                recBtn.classList.remove('recording');
+            }
             input.innerHTML = '';
             if (titleInput) titleInput.value = '';
-            addBtn.textContent = 'add note';
+            addBtn.textContent = isDiarySide ? 'save diary' : 'add note';
             updateLineNumbers();
             updateToolbarStates();
             if (form) form.classList.remove('is-editing');
@@ -440,14 +463,20 @@
         document.getElementById('addNoteBtn').onclick = async () => {
             const content = document.getElementById('noteContent').innerHTML;
             let title = document.getElementById('noteTitle')?.value || '';
+            const isDiarySide = '{{ side }}' === 'dulytold';
 
             if (!content || content === '<br>') {
-                showInlineMessage("note cannot be empty", 'error');
+                showInlineMessage(`${isDiarySide ? 'diary' : 'note'} cannot be empty`, 'error');
                 return;
             }
 
             if (!title.trim() && !currentEditId) {
                 title = userSettings.default_note_title || 'untitled';
+            }
+
+            const payload = { title: title, content: content };
+            if (isDiarySide && recordingEvents.length > 0) {
+                payload.events = recordingEvents;
             }
 
             try {
@@ -456,7 +485,7 @@
                 const response = await fetch(endpoint, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title: title, content: content })
+                    body: JSON.stringify(payload)
                 });
                 const result = await response.json();
                 
@@ -464,8 +493,13 @@
                     document.getElementById('noteContent').innerHTML = '';
                     const titleInput = document.getElementById('noteTitle');
                     if (titleInput) titleInput.value = '';
+                    recordingEvents = []; // Clear after save
                     fetchNotes();
-                    showInlineMessage(result.message, 'success');
+                    let msg = result.message;
+                    if (isDiarySide) {
+                        msg = msg.replace(/Note/gi, 'Diary');
+                    }
+                    showInlineMessage(msg, 'success');
                     if (currentEditId) {
                         cancelEdit();
                     }
@@ -477,21 +511,74 @@
             }
         };
 
+        function scrollToLogs() {
+            if (recordingEvents && recordingEvents.length > 0) {
+                playbackLog();
+            } else {
+                showInlineMessage("no recording found for this diary", 'error');
+            }
+        }
 
+        function toggleRecording() {
+            const btn = document.getElementById('recordLogBtn');
+            const editor = document.getElementById('noteContent');
+            if (!isRecording) {
+                isRecording = true;
+                recordingStartTime = Date.now();
+                recordingEvents = [{ time: 0, html: editor.innerHTML }];
+                btn.textContent = 'stop recording';
+                btn.classList.add('recording');
+                showInlineMessage("recording started...", 'success');
+            } else {
+                isRecording = false;
+                btn.textContent = 'start recording';
+                btn.classList.remove('recording');
+                showInlineMessage("recording stopped. click save to keep it.", 'success');
+            }
+        }
 
+        document.getElementById('noteContent').addEventListener('input', () => {
+            if (isRecording) {
+                recordingEvents.push({ 
+                    time: Date.now() - recordingStartTime, 
+                    html: document.getElementById('noteContent').innerHTML 
+                });
+            }
+        });
+
+        async function playbackLog() {
+            if (!recordingEvents || recordingEvents.length === 0) return;
+            const editor = document.getElementById('noteContent');
+            const titleInput = document.getElementById('noteTitle');
+            const title = titleInput?.value || 'diary';
+            
+            showInlineMessage(`playing recording: ${title}`, 'success');
+            
+            // Clone events to avoid modifying the active list
+            const eventsToPlay = [...recordingEvents];
+            
+            eventsToPlay.forEach(event => {
+                setTimeout(() => { 
+                    editor.innerHTML = event.html; 
+                    updateLineNumbers(); 
+                    updateToolbarStates(); 
+                }, event.time);
+            });
+        }
 
         let activeNoteId = null;
         let isDeleteOpen = false;
-
         function openDeleteModal(noteId) {
             activeNoteId = noteId;
             const modal = document.getElementById('deleteModal');
+            const title = document.getElementById('deleteTitle');
+            const isDiarySide = '{{ side }}' === 'dulytold';
             if (!modal) return;
+            if (title) title.textContent = `delete ${isDiarySide ? 'diary' : 'note'}?`;
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             isDeleteOpen = true;
         }
-
         function closeDeleteModal() {
             const modal = document.getElementById('deleteModal');
             if (!modal) return;
@@ -499,78 +586,57 @@
             modal.setAttribute('aria-hidden', 'true');
             isDeleteOpen = false;
         }
-
         async function confirmDelete() {
             if (!activeNoteId) return;
             await deleteNote(activeNoteId);
             closeDeleteModal();
         }
-
         async function deleteNote(noteId) {
-            
             try {
-                const response = await fetch(`/api/notes/${noteId}`, {
-                    method: 'DELETE'
-                });
-                if (response.ok) {
-                    fetchNotes();
-                }
-            } catch (error) {
-                console.error('Error deleting note:', error);
-            }
+                const response = await fetch(`/api/notes/${noteId}`, { method: 'DELETE' });
+                if (response.ok) fetchNotes();
+            } catch (error) { console.error('Error deleting:', error); }
         }
 
         let activeShareRequest = null;
         window._shareRequests = [];
-
         function openShareRequestModal(request) {
             activeShareRequest = request;
             const modal = document.getElementById('requestModal');
             const title = document.getElementById('requestTitle');
             const preview = document.getElementById('requestPreview');
             if (!modal) return;
-            if (title && request?.owner) {
-                title.textContent = `${request.owner} shared a note`;
-            }
-            if (preview) {
-                preview.textContent = request?.note_content || '';
-            }
+            if (title && request?.owner) title.textContent = `${request.owner} shared a note`;
+            if (preview) preview.textContent = request?.note_content || '';
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
         }
-
         function closeShareRequestModal() {
             const modal = document.getElementById('requestModal');
             if (!modal) return;
             modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
         }
-
         function openShareRequestModalByIndex(index) {
             const req = (window._shareRequests || [])[index];
             if (!req) return;
             openShareRequestModal(req);
         }
-
         async function confirmAccept() {
             if (!activeShareRequest) return;
             await acceptShare(activeShareRequest._id);
             closeShareRequestModal();
         }
-
         async function confirmReject() {
             if (!activeShareRequest) return;
             await rejectShare(activeShareRequest._id);
             closeShareRequestModal();
         }
-
         let _openedNotificationRequest = false;
-
         async function fetchShareRequests() {
             const response = await fetch('/api/notes/requests');
             const requests = await response.json();
             window._shareRequests = requests || [];
-
             const shouldOpenFromNotification = !_openedNotificationRequest && new URLSearchParams(window.location.search).get('openShareRequest') === '1';
             if (shouldOpenFromNotification) {
                 _openedNotificationRequest = true;
@@ -578,59 +644,38 @@
                 window.history.replaceState({}, '', window.location.pathname);
             }
         }
-
         async function fetchOutgoingRequests() {
             const response = await fetch('/api/notes/requests/outgoing');
             const requests = await response.json();
             window._outgoingRequests = requests || [];
         }
-
         async function acceptShare(requestId) {
             const response = await fetch(`/api/notes/requests/${requestId}/accept`, { method: 'POST' });
-            if (response.ok) {
-                fetchNotes();
-                fetchShareRequests();
-            }
+            if (response.ok) { fetchNotes(); fetchShareRequests(); }
         }
-
         async function rejectShare(requestId) {
             const response = await fetch(`/api/notes/requests/${requestId}/reject`, { method: 'POST' });
-            if (response.ok) {
-                fetchShareRequests();
-            }
+            if (response.ok) fetchShareRequests();
         }
 
         let pendingShare = { noteId: null, recipient: '' };
         let isShareOpen = false;
         let pendingEmailNoteId = null;
-        let shareEmailMessageTimer = null;
-
         function showShareEmailMessage(text, type) {
             const message = document.getElementById('shareEmailMessage');
             if (!message) return;
             message.textContent = text;
             message.className = 'inline-message ' + (type || '');
-            if (shareEmailMessageTimer) clearTimeout(shareEmailMessageTimer);
-            shareEmailMessageTimer = setTimeout(() => {
-                message.textContent = '';
-                message.className = 'inline-message';
-            }, 3000);
+            setTimeout(() => { message.textContent = ''; message.className = 'inline-message'; }, 3000);
         }
-
         function openShareSelect(noteId) {
             const wrap = document.querySelector(`.share-select-wrap[data-note-id="${noteId}"]`);
-            if (!wrap) return;
-            wrap.classList.remove('is-hidden');
-            wrap.classList.add('is-open');
+            if (wrap) { wrap.classList.remove('is-hidden'); wrap.classList.add('is-open'); }
         }
-
         function closeShareSelect(noteId) {
             const wrap = document.querySelector(`.share-select-wrap[data-note-id="${noteId}"]`);
-            if (!wrap) return;
-            wrap.classList.remove('is-open');
-            wrap.classList.add('is-hidden');
+            if (wrap) { wrap.classList.remove('is-open'); wrap.classList.add('is-hidden'); }
         }
-
         function openShareModal(noteId, recipient) {
             pendingShare = { noteId, recipient };
             const modal = document.getElementById('shareModal');
@@ -638,122 +683,57 @@
             const preview = document.getElementById('sharePreview');
             const toggleBtn = document.getElementById('shareToggleBtn');
             if (!modal) return;
-            if (title) {
-                title.textContent = recipient ? `share with ${recipient}?` : 'share with user?';
-            }
+            if (title) title.textContent = recipient ? `share with ${recipient}?` : 'share with user?';
             if (preview) {
                 const item = document.getElementById(`note-item-${noteId}`);
                 preview.textContent = item ? (item.dataset.content || '') : '';
                 preview.classList.add('is-collapsed');
             }
-            if (toggleBtn) {
-                toggleBtn.textContent = 'show more';
-                toggleBtn.style.display = 'none';
-            }
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
             isShareOpen = true;
-
             setTimeout(() => {
                 if (!preview || !toggleBtn) return;
-                if (!preview.textContent) {
-                    toggleBtn.style.display = 'none';
-                    return;
-                }
                 const styles = window.getComputedStyle(preview);
-                let lineHeight = parseFloat(styles.lineHeight);
-                if (Number.isNaN(lineHeight)) {
-                    const fontSize = parseFloat(styles.fontSize) || 14;
-                    lineHeight = fontSize * 1.6;
-                }
-                const maxCollapsed = lineHeight * 3 + 1;
-                toggleBtn.style.display = preview.scrollHeight > maxCollapsed ? 'inline-flex' : 'none';
+                let lineHeight = parseFloat(styles.lineHeight) || 20;
+                toggleBtn.style.display = preview.scrollHeight > (lineHeight * 3 + 1) ? 'inline-flex' : 'none';
             }, 0);
         }
-
         function toggleSharePreview() {
             const preview = document.getElementById('sharePreview');
             const toggleBtn = document.getElementById('shareToggleBtn');
-            if (!preview || !toggleBtn) return;
             const isCollapsed = preview.classList.toggle('is-collapsed');
             toggleBtn.textContent = isCollapsed ? 'show more' : 'show less';
-            toggleBtn.blur();
         }
-
         function closeShareModal() {
             const modal = document.getElementById('shareModal');
-            if (!modal) return;
-            modal.classList.remove('open');
-            modal.setAttribute('aria-hidden', 'true');
+            if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
             isShareOpen = false;
         }
-
         function openShareEmailModal(noteId) {
             pendingEmailNoteId = noteId;
             const modal = document.getElementById('shareEmailModal');
             const input = document.getElementById('shareEmailInput');
-            const message = document.getElementById('shareEmailMessage');
-            if (!modal) return;
-            if (input) input.value = '';
-            if (message) {
-                message.textContent = '';
-                message.className = 'inline-message';
-            }
-            modal.classList.add('open');
-            modal.setAttribute('aria-hidden', 'false');
-            if (input) input.focus();
+            if (modal) { modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); input.focus(); }
         }
-
         function closeShareEmailModal() {
             const modal = document.getElementById('shareEmailModal');
-            if (!modal) return;
-            modal.classList.remove('open');
-            modal.setAttribute('aria-hidden', 'true');
+            if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
         }
-
         async function confirmShareEmail() {
-            const input = document.getElementById('shareEmailInput');
-            const message = document.getElementById('shareEmailMessage');
-            const email = (input?.value || '').trim().toLowerCase();
-            if (!email) {
-                showShareEmailMessage('please enter an email.', 'error');
-                return;
-            }
-
+            const email = (document.getElementById('shareEmailInput')?.value || '').trim().toLowerCase();
+            if (!email) { showShareEmailMessage('please enter an email.', 'error'); return; }
             try {
                 const response = await fetch(`/api/users/lookup?email=${encodeURIComponent(email)}`);
                 const result = await response.json();
-                if (!response.ok) {
-                    showShareEmailMessage(result.message || 'user not found.', 'error');
-                    return;
-                }
+                if (!response.ok) { showShareEmailMessage(result.message || 'user not found.', 'error'); return; }
                 closeShareEmailModal();
-                if (pendingEmailNoteId) {
-                    openShareModal(pendingEmailNoteId, result.username);
-                }
-            } catch (error) {
-                showShareEmailMessage('an error occurred.', 'error');
-            }
+                if (pendingEmailNoteId) openShareModal(pendingEmailNoteId, result.username);
+            } catch (error) { showShareEmailMessage('an error occurred.', 'error'); }
         }
-
         async function confirmShare() {
             const { noteId, recipient } = pendingShare;
             if (!noteId || !recipient) return;
-            await performShare(noteId, recipient);
-            closeShareModal();
-        }
-
-        async function shareNote(noteId, forcedRecipient) {
-            if (forcedRecipient) {
-                openShareModal(noteId, forcedRecipient);
-                return;
-            }
-            openShareSelect(noteId);
-        }
-
-        async function performShare(noteId, recipient) {
-            const wrap = document.querySelector(`.share-select-wrap[data-note-id="${noteId}"]`);
-
             try {
                 const response = await fetch('/api/notes/share', {
                     method: 'POST',
@@ -761,73 +741,48 @@
                     body: JSON.stringify({ note_id: noteId, recipient: recipient })
                 });
                 const result = await response.json();
-
                 showInlineMessage(result.message, response.ok ? 'success' : 'error');
-
-                if (response.ok && wrap) {
-                    wrap.classList.remove('is-open');
-                    wrap.classList.add('is-hidden');
-                }
-            } catch (error) {
-                showInlineMessage('an error occurred.', 'error');
-            }
+                closeShareModal();
+            } catch (error) { showInlineMessage('an error occurred.', 'error'); }
+        }
+        function shareNote(noteId, forcedRecipient) {
+            if (forcedRecipient) { openShareModal(noteId, forcedRecipient); return; }
+            openShareSelect(noteId);
         }
 
         let pendingDownloadId = null;
-
         function openDownloadModal(noteId) {
             pendingDownloadId = noteId;
             const modal = document.getElementById('downloadModal');
-            if (modal) {
-                modal.classList.add('open');
-                modal.setAttribute('aria-hidden', 'false');
-            }
+            if (modal) { modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); }
         }
-
         function closeDownloadModal() {
             const modal = document.getElementById('downloadModal');
-            if (modal) {
-                modal.classList.remove('open');
-                modal.setAttribute('aria-hidden', 'true');
-            }
-            pendingDownloadId = null;
+            if (modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
         }
-
         function performDownload(format) {
             const item = document.getElementById(`note-item-${pendingDownloadId}`);
             if (!item) return;
-
             const title = item.dataset.title || 'untitled';
             const content = item.dataset.content || '';
             let blob, filename;
-
-                if (format === 'json') {
-                    const data = { title, content, downloaded_at: new Date().toISOString() };
-                    blob = new Blob([JSON.stringify(data, null, 4)], { type: 'application/json' });
-                    filename = `${title.replace(/\s+/g, '_')}.json`;
-              } else {
-                    const text = `${title}\n${'='.repeat(title.length)}\n\n${content}`;
-                    blob = new Blob([text], { type: 'text/plain' });
-                    filename = `${title.replace(/\s+/g, '_')}.txt`;
-                }
-                
+            if (format === 'json') {
+                const data = { title, content, downloaded_at: new Date().toISOString() };
+                blob = new Blob([JSON.stringify(data, null, 4)], { type: 'application/json' });
+                filename = `${title.replace(/\s+/g, '_')}.json`;
+            } else {
+                const text = `${title}\n${'='.repeat(title.length)}\n\n${content}`;
+                blob = new Blob([text], { type: 'text/plain' });
+                filename = `${title.replace(/\s+/g, '_')}.txt`;
+            }
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            closeDownloadModal();
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url); closeDownloadModal();
         }
 
-        async function initPage() {
-            await fetchNotes();
-            fetchShareRequests();
-            fetchOutgoingRequests();
-        }
-
+        async function initPage() { await fetchNotes(); fetchShareRequests(); fetchOutgoingRequests(); }
 
         const menuBtn = document.getElementById('notesMenuBtn');
         const sidebar = document.getElementById('notesSidebar');
@@ -840,9 +795,7 @@
             });
             document.addEventListener('click', (e) => {
                 if (!sidebar.classList.contains('is-open')) return;
-                const isMenuBtn = e.target.closest('#notesMenuBtn');
-                const isSidebar = e.target.closest('#notesSidebar');
-                if (isMenuBtn || isSidebar) return;
+                if (e.target.closest('#notesMenuBtn') || e.target.closest('#notesSidebar')) return;
                 sidebar.classList.remove('is-open');
                 menuBtn.classList.remove('is-open');
                 if (notesMain) notesMain.classList.remove('menu-open');
@@ -850,41 +803,19 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && isDeleteOpen) {
-                closeDeleteModal();
-            }
-            if (e.key === 'Escape' && isShareOpen) {
-                closeShareModal();
-            }
             if (e.key === 'Escape') {
-                closeShareRequestModal();
+                closeDeleteModal(); closeShareModal(); closeShareRequestModal(); closeShareEmailModal(); closeLinkModal(); closeDownloadModal();
             }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeShareEmailModal();
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            const shareBtn = e.target.closest('.share-btn');
-            const shareMenu = e.target.closest('.share-menu');
-            const shareWrap = e.target.closest('.share-select-wrap');
-            if (shareBtn || shareMenu || shareWrap) return;
-            document.querySelectorAll('.share-select-wrap.is-open').forEach(wrap => {
-                wrap.classList.remove('is-open');
-                wrap.classList.add('is-hidden');
-            });
         });
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.settings-select-wrap')) {
-                closeFormatMenu();
-    }
-});
-    loadUserSettings().then(() => {
-        applyUISettings();
-        initPage();
-    });
+            if (!e.target.closest('.share-btn') && !e.target.closest('.share-menu') && !e.target.closest('.share-select-wrap')) {
+                document.querySelectorAll('.share-select-wrap.is-open').forEach(wrap => {
+                    wrap.classList.remove('is-open'); wrap.classList.add('is-hidden');
+                });
+            }
+            if (!e.target.closest('.settings-select-wrap')) closeFormatMenu();
+        });
+
+        loadUserSettings().then(() => { applyUISettings(); initPage(); });
     </script>
 {% endblock %}

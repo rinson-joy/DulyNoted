@@ -7,7 +7,7 @@ login_bp = fl.Blueprint("login_bp", __name__)
 @login_bp.route('/')
 @login_bp.route('/home')
 def home():
-    return fl.render_template("home.html", name="Menu")
+    return fl.render_template("home.html", name="Menu", side="dulynoted")
 
 @login_bp.route('/register', methods=['GET', 'POST'])
 def add_user():
@@ -108,6 +108,8 @@ def delete_user():
     result = col.delete_one({"username": username})
     if result.deleted_count:
         notes_col.delete_many({"owner": username})
+        from monkey import diary_col
+        diary_col.delete_many({"owner": username})
         if fl.session.get("user") == username:
             fl.session.clear()
         return fl.jsonify({"message": "User deleted"}), 200
@@ -117,7 +119,7 @@ def delete_user():
 @login_bp.route('/settings')
 @login_required
 def settings():
-    return fl.render_template("settings.html", name="Settings")
+    return fl.render_template("settings.html", name="Settings", side="dulynoted")
 
 @login_bp.route('/api/settings', methods=['GET', 'POST'])
 @login_required

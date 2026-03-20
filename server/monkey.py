@@ -10,6 +10,7 @@ db = client["juicy"]
 col = db["userdata"]
 notes_col = db["notes"]
 share_col = db["shared"]
+diary_col = db["diary"]
 
 def login_required(f):
     @wraps(f)

@@ -6,8 +6,9 @@ admin_bp = fl.Blueprint("admin_bp", __name__)
 
 @admin_bp.route('/admin')
 @admin_required
-def admin_panel():
-    return fl.render_template("admin.html", name="Admin Panel")
+def admin_page():
+    return fl.render_template('admin.html', name='Admin', side="dulynoted")
+
 
 @admin_bp.route('/admin/users')
 @admin_required

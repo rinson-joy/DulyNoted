@@ -8,7 +8,7 @@ notes_bp = fl.Blueprint('notes_bp', __name__)
 @notes_bp.route('/notes')
 @login_required
 def notes_page():
-    return fl.render_template('notes.html', name='Notes')
+    return fl.render_template('notes.html', name='Notes', side="dulynoted")
 
 @notes_bp.route('/api/notes/export', methods=['GET'])
 @login_required
@@ -105,6 +105,7 @@ def add_note():
     data = fl.request.get_json(silent=True)
     title = (data.get("title") or "").strip()
     content = data.get("content")
+    events = data.get("events") # Added for unified recordings
     if not content:
         return fl.jsonify({"message": "Note content is required"}), 400
     if not title:
@@ -115,13 +116,17 @@ def add_note():
         title = f"my notes {untitled_count + 1}"
     
     now = datetime.utcnow().isoformat()
-    note_id = notes_col.insert_one({
+    note_data = {
         "owner": fl.session["user"],
         "title": title,
         "content": content,
         "created_at": now,
         "modified_at": now
-    }).inserted_id
+    }
+    if events:
+        note_data["events"] = events
+        
+    note_id = notes_col.insert_one(note_data).inserted_id
     
     return fl.jsonify({"message": "Note added", "id": str(note_id)}), 201
 
@@ -152,6 +157,7 @@ def update_note(note_id):
     data = fl.request.get_json(silent=True) or {}
     title = (data.get("title") or "").strip()
     content = data.get("content")
+    events = data.get("events") # Added for unified recordings
     if not content:
         return fl.jsonify({"message": "Note content is required"}), 400
     try:
@@ -161,6 +167,9 @@ def update_note(note_id):
         }
         if title:
             update_fields["title"] = title[:80]
+        if events:
+            update_fields["events"] = events
+            
         result = notes_col.update_one(
             {"_id": ObjectId(note_id), "owner": fl.session["user"]},
             {"$set": update_fields},

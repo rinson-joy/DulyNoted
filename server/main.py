@@ -16,11 +16,13 @@ from routes.login import login_bp
 from routes.notes import notes_bp
 from routes.admin import admin_bp
 from routes.share import share_bp
+from routes.dulytold import dulytold_bp
 
 app.register_blueprint(login_bp)
 app.register_blueprint(notes_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(share_bp)
+app.register_blueprint(dulytold_bp)
 
 s_key = os.getenv("apple")
 
